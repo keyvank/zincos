@@ -1,6 +1,6 @@
 #include "../drivers/ports.h"
 
-void main() {
+void kmain() {
     port_byte_out(0x3d4, 14);
     int position = port_byte_in(0x3d5);
     position = position << 8;
