@@ -21,7 +21,7 @@ mov bx, MSG_LOAD_KERNEL
 call print_real
 call print_newline_real
 mov bx, KERNEL_OFFSET ; Read from disk and store in KERNEL_OFFSET
-mov al, 2 ; Read two sectors
+mov al, 16 ; Read four sectors
 mov dl, [BOOT_DRIVE]
 mov cl, 0x02 ; From second sector (First one is boot sector)
 mov ch, 0 ; Cylinder 0
