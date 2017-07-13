@@ -19,7 +19,7 @@ mov bx, MSG_LOAD_KERNEL
 call print_real
 call print_newline_real
 mov bx, [KERNEL_OFFSET] ; Read from disk and store in KERNEL_OFFSET
-mov al, 16 ; Read four sectors
+mov al, [KERNEL_SIZE] ; Read four sectors
 mov dl, [BOOT_DRIVE]
 mov cl, 0x02 ; From second sector (First one is boot sector)
 mov ch, 0 ; Cylinder 0
@@ -39,18 +39,19 @@ jmp $
 BEGIN_PROTECTED:
 	mov ebx, MSG_PROTECTED_MODE
 	call print_protected
-	mov eax, [KERNEL_OFFSET]
-	call eax
+	mov ax, [KERNEL_OFFSET]
+	call ax
 	jmp $ ; Wait here when kernel returned control to us!
 
 ; Constants
 NEW_LINE: db 0x0a,0x0d,0
-MSG_REAL_MODE: db "Hello ZincOS, We are in Real-Mode!",0
+MSG_REAL_MODE: db "We are in Real-Mode!",0
 MSG_PROTECTED_MODE: db "Yoooohoooooo! We are in Protected-mode!",0
 MSG_LOAD_KERNEL: db "Loading kernel into memory...",0
 
 BOOT_DRIVE: db 0x80 ; It is a good idea to store it in memory because DL may get overwritten
 KERNEL_OFFSET: dw 0x1000 ; The same one we used when linking the kernel
+KERNEL_SIZE: db 0x10 ; Sectors
 
 ; MBR signature
 times 510-($-$$) db 0

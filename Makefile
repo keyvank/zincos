@@ -7,7 +7,7 @@ EMUFLAGS = -m 128
 KERNEL_OBJECTS = ./kernel/entry.o ./kernel/kmain.o ./drivers/ports.o ./drivers/display/vga/vga_text.o
 
 all: ./kernel/kernel.bin ./boot/bootloader.bin
-	dd if=/dev/null of=./kernel/kernel.bin bs=1 count=0 seek=8192 # Padding the kernel to 8192 bytes
+	dd if=/dev/null of=./kernel/kernel.bin bs=512 count=0 seek=16 # Padding the kernel to 16 sectors
 	cat ./boot/bootloader.bin ./kernel/kernel.bin > os.bin
 	$(EMU) $(EMUFLAGS) -hda ./os.bin
 
