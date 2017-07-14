@@ -51,7 +51,7 @@ MSG_LOAD_KERNEL: db "Loading kernel into memory...",0
 
 BOOT_DRIVE: db 0x80 ; It is a good idea to store it in memory because DL may get overwritten
 KERNEL_OFFSET: dw 0x1000 ; The same one we used when linking the kernel
-KERNEL_SIZE: db 0x10 ; Sectors
+KERNEL_SIZE: db 0x20 ; Sectors
 
 ; MBR signature
 times 510-($-$$) db 0

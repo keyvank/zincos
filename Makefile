@@ -4,12 +4,13 @@ LD = i386-elf-ld
 AS = nasm
 EMU = qemu-system-i386
 EMUFLAGS = -m 128
-KERNEL_OBJECTS =  ./kernel/entry.o ./kernel/kmain.o ./drivers/ports.o ./drivers/display/vga/vga_text.o
+C_FILES = $(shell find . -type f -name '*.c')
+KERNEL_OBJECTS = kernel/entry.o ${C_FILES:.c=.o } cpu/interrupt.o
 
 all: ./kernel/kernel.bin ./boot/bootloader.bin
-	dd if=/dev/null of=./kernel/kernel.bin bs=512 count=0 seek=16 > /dev/null 2> /dev/null # Padding the kernel to 16 sectors
+	dd if=/dev/null of=./kernel/kernel.bin bs=512 count=0 seek=32 # Padding the kernel to 32 sectors
 	cat ./boot/bootloader.bin ./kernel/kernel.bin > os.bin
-	$(EMU) $(EMUFLAGS) -hda ./os.bin > /dev/null 2> /dev/null
+	$(EMU) $(EMUFLAGS) -hda ./os.bin
 
 ./kernel/kernel.bin: $(KERNEL_OBJECTS)
 	$(LD) -o $@ -T ./kernel/linker.ld $^
@@ -17,11 +18,11 @@ all: ./kernel/kernel.bin ./boot/bootloader.bin
 ./boot/bootloader.bin: ./boot/bootloader.asm
 	$(AS) -f bin ./boot/bootloader.asm -o ./boot/bootloader.bin
 
-./kernel/entry.o: ./kernel/entry.asm
-	$(AS) ./kernel/entry.asm -f elf -o ./kernel/entry.o
-
-./kernel/%.o: ./kernel/%.c
+%.o: %.c
 	$(CC) $(CFLAGS) -std=gnu99 -Wall -Wextra -c $^ -o $@
+
+%.o: %.asm
+	$(AS) $^ -f elf -o $@
 
 clean:
 	rm -rf ./boot/bootloader.bin
