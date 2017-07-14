@@ -4,6 +4,7 @@
 #include "cpu/idt.h"
 
 void kmain() {
+	clear_screen();
 	kprint("We are in the kernel!\nWelcome to ZincOS!\n\n");
   isr_install();
   /* Test the interrupts */
