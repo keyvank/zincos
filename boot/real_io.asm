@@ -1,4 +1,4 @@
-[BITS 16]
+[BITS 16] ; Real-mode functions
 
 ; Prints an ASCII text starting at BX in Real-mode.
 print_real:
@@ -38,7 +38,7 @@ clear_real:
 	mov cx,0
 	mov dh,24
 	mov dl,79
-	int 10H            
+	int 10H
 	mov ah,02H
 	mov bh,00H
 	mov dx,0
@@ -51,11 +51,11 @@ clear_real:
 print_hex_real:
     pusha
     mov cx, 0 ; Index variable
-    
+
 .loop:
     cmp cx, 4 ; loop 4 times
     je .end
-    
+
     ; Step 1. convert last char of 'dx' to ascii
     mov ax, dx ; We will use 'ax' as our working register
     and ax, 0x000f ; 0xXXXX -> 0x000X by masking first three to zeros
@@ -113,6 +113,3 @@ load_disk_real:
 
 .disk_loop:
 	jmp $
-
-
-
