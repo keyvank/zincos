@@ -1,7 +1,9 @@
 #ifndef __DRIVERS__VGA__VGA_TEXT__
 #define __DRIVERS__VGA__VGA_TEXT__
 
-#define VIDEO_ADDRESS 0xb8000
+#include "cpu/types.h"
+
+#define VIDEO_ADDRESS (0xb8000)
 #define MAX_ROWS 25
 #define MAX_COLS 80
 #define WHITE_ON_BLACK 0x0f
@@ -13,7 +15,7 @@
 
 /* Public kernel API */
 void clear_screen();
-void kprint_at(char *message, int col, int row);
-void kprint(char *message);
+void kprint_at(str_t message, int col, int row);
+void kprint(str_t message);
 
 #endif

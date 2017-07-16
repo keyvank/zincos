@@ -1,7 +1,8 @@
-#include "drivers/display/vga/vga_text.h"
+#include "drivers/vga.h"
 #include "kernel/util.h"
 #include "cpu/isr.h"
 #include "cpu/idt.h"
+#include "drivers/keyboard.h"
 
 void kmain() {
 	clear_screen();
@@ -9,7 +10,7 @@ void kmain() {
   isr_irq_install();
 
 	asm volatile("sti");
-	init_timer(50);
+	//init_timer(50);
 	/* Comment out the timer IRQ handler to read
 	* the keyboard IRQs easier */
 	init_keyboard();

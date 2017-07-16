@@ -19,13 +19,10 @@ all: ./kernel/kernel.bin ./boot/bootloader.bin
 	$(AS) -f bin ./boot/bootloader.asm -o ./boot/bootloader.bin
 
 %.o: %.c
-	$(CC) $(CFLAGS) -std=gnu99 -Wall -Wextra -c $^ -o $@
+	$(CC) $(CFLAGS) -std=gnu99 -Wall -Wextra -Werror -c $^ -o $@
 
 %.o: %.asm
 	$(AS) $^ -f elf -o $@
 
 clean:
-	rm -rf ./boot/bootloader.bin
-	rm -rf ./kernel/*.o
-	rm -rf ./kernel/*.bin
-	rm -rf ./os.bin
+	rm -rf $(shell find . -type f -name '*.o')

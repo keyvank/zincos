@@ -3,6 +3,6 @@
 
 #include "kernel/util.h"
 
-void init_timer(u32 freq);
+void init_timer(u32_t freq);
 
 #endif

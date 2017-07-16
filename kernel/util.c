@@ -7,8 +7,8 @@ void memory_copy(char *source, char *dest, int nbytes) {
     }
 }
 
-void memory_set(u8 *dest, u8 val, u32 len) {
-    u8 *temp = (u8 *)dest;
+void memory_set(u8_t *dest, u8_t val, u32_t len) {
+    u8_t *temp = (u8_t *)dest;
     for ( ; len != 0; len--) *temp++ = val;
 }
 
