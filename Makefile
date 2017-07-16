@@ -26,3 +26,4 @@ all: ./kernel/kernel.bin ./boot/bootloader.bin
 
 clean:
 	rm -rf $(shell find . -type f -name '*.o')
+	rm -rf $(shell find . -type f -name '*.bin')
