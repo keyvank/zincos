@@ -1,5 +1,5 @@
 CC = i386-elf-gcc
-CFLAGS = -ffreestanding -I.
+CFLAGS = -ffreestanding -I. -std=gnu99 -Wall -Wextra -Werror
 LD = i386-elf-ld
 AS = nasm
 EMU = qemu-system-i386
@@ -19,7 +19,7 @@ all: ./kernel/kernel.bin ./boot/bootloader.bin
 	$(AS) -f bin ./boot/bootloader.asm -o ./boot/bootloader.bin
 
 %.o: %.c
-	$(CC) $(CFLAGS) -std=gnu99 -Wall -Wextra -Werror -c $^ -o $@
+	$(CC) $(CFLAGS) -c $^ -o $@
 
 %.o: %.asm
 	$(AS) $^ -f elf -o $@
