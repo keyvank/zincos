@@ -28,12 +28,15 @@ mov ch, 0 ; Cylinder 0
 mov dh, 0 ; Head 0
 call load_disk_real ; (Defined in real_io.asm)
 
+call enable_a20 ; (Defined in a20.asm)
+
 call switch_to_pm ; (Defined in protected_mode.asm)
 ; Infinite loop, Never going to execute
 jmp $
 
 ; Include files
 %include "./boot/protected_mode.asm"
+%include "./boot/a20.asm"
 %include "./boot/gdt.asm"
 %include "./boot/real_io.asm"
 %include "./boot/protected_io.asm"
@@ -57,9 +60,9 @@ BEGIN_PROTECTED:
 
 ; Constants
 NEW_LINE: db 0x0a,0x0d,0
-MSG_REAL_MODE: db "We are in Real-Mode!",0
-MSG_PROTECTED_MODE: db "Yoooohoooooo! We are in Protected-mode!",0
-MSG_LOAD_KERNEL: db "Loading kernel into memory...",0
+MSG_REAL_MODE: db "Real-Mode!",0
+MSG_PROTECTED_MODE: db "Protected-mode!",0
+MSG_LOAD_KERNEL: db "Loading kernel...",0
 
 BOOT_DRIVE: db 0x80 ; It is a good idea to store it in memory because DL may get overwritten
 KERNEL_OFFSET: dw 0x1000 ; The same one we used when linking the kernel
