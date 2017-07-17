@@ -2,11 +2,13 @@
 #include "kernel/util.h"
 #include "cpu/isr.h"
 #include "cpu/idt.h"
+#include "cpu/gdt.h"
 #include "drivers/keyboard.h"
 
 void kmain() {
 	clear_screen();
 	kprint("We are in the kernel!\nWelcome to ZincOS!\n\n");
+	gdt_install();
   isr_irq_install();
 
 	asm volatile("sti");

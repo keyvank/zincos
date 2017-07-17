@@ -5,7 +5,7 @@ AS = nasm
 EMU = qemu-system-i386
 EMUFLAGS = -m 1024
 C_FILES = $(shell find . -type f -name '*.c')
-KERNEL_OBJECTS = kernel/entry.o ${C_FILES:.c=.o } cpu/interrupt.o
+KERNEL_OBJECTS = kernel/entry.o ${C_FILES:.c=.o } cpu/interrupt.o cpu/asmutil.o
 
 all: ./kernel/kernel.bin ./boot/bootloader.bin
 	dd if=/dev/null of=./kernel/kernel.bin bs=512 count=0 seek=32 # Padding the kernel to 32 sectors
