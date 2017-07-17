@@ -97,8 +97,8 @@ load_disk_real:
 	jne .sectors_error
 	popa
 	ret
-	.DISK_ERROR: db "Disk read error. Error code: ", 0
-	.SECTORS_ERROR: db "Incorrect number of sectors read.", 0
+	.DISK_ERROR: db "Disk Error. Code: ", 0
+	.SECTORS_ERROR: db "Read error.", 0
 
 .disk_error:
 	mov bx, .DISK_ERROR
