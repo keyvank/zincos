@@ -3,7 +3,7 @@ CFLAGS = -ffreestanding -I. -std=gnu99 -Wall -Wextra -Werror
 LD = i386-elf-ld
 AS = nasm
 EMU = qemu-system-i386
-EMUFLAGS = -m 128
+EMUFLAGS = -m 1024
 C_FILES = $(shell find . -type f -name '*.c')
 KERNEL_OBJECTS = kernel/entry.o ${C_FILES:.c=.o } cpu/interrupt.o
 
