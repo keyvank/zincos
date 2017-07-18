@@ -45,3 +45,8 @@ int strlen(char s[]) {
     while (s[i] != '\0') ++i;
     return i;
 }
+
+
+u32_t glue(u16_t const p_low, u16_t const p_high) {
+	return (u32_t)p_low + (((u32_t)p_high)<<16);
+}
