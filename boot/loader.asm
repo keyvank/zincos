@@ -3,22 +3,24 @@
 
 call enable_a20 ; (Defined in a20.asm)
 
-
 sti
+
+; Set memory size in multibit_info structure
 xor		eax, eax
 xor		ebx, ebx
-call	BiosGetMemorySize64MB
-mov		word [boot_info+multiboot_info.memoryHi], bx
-mov		word [boot_info+multiboot_info.memoryLo], ax
+call	get_mem_size_64mb
+mov		word [boot_info+multiboot_info.memory_high], bx
+mov		word [boot_info+multiboot_info.memory_low], ax
 
+; Set memory map address in multibit_info structure
 xor		eax, eax
 mov		ds, ax
 mov		di, memory_map
-call	BiosGetMemoryMap
+call	get_mem_map
 mov		word [boot_info+multiboot_info.mmap_addr], di
-;mov		word [boot_info+multiboot_info.mmap_length], bx ; Who knows?
 
 call switch_to_pm ; (Defined in protected_mode.asm)
+
 ; Infinite loop, Never going to execute
 jmp $
 
@@ -40,6 +42,7 @@ BEGIN_PROTECTED:
 
 	push dword boot_info
 	jmp KERNEL_ADDR
+
 	cli
 	hlt
 
@@ -56,5 +59,7 @@ BEGIN_PROTECTED:
 MSG_PROTECTED_MODE: db "Protected-mode!",0
 LOADER_ADDR equ 0x1000
 KERNEL_ADDR equ LOADER_ADDR + 0x600 ; The same one we used when linking the kernel
-memory_map:
+
+memory_map: ; Free space for memory map
+
 times 1536-($-$$) db 0 ; Loader is 1536 (0x600) bytes long

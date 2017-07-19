@@ -14,7 +14,7 @@ mov bx, MSG_REAL_MODE
 call print_real
 call print_newline_real
 
-; Loading the kernel
+; Loading the loader
 mov bx, MSG_LOAD_LOADER
 call print_real
 call print_newline_real

@@ -1,3 +1,6 @@
+; Temporary GDT for going into protected mode and calling kernel.
+; Kernel will reinitialize GDT.
+
 ; No need for specifying the BITS directive
 
 gdt_start: ; The GDT starts with a null 8-byte
@@ -12,7 +15,7 @@ gdt_code:
     db 0x0       ; Segment base, bits 16-23
     db 10011010b ; Flags (8 bits)
     db 11001111b ; Flags (4 bits) + Segment length, bits 16-19
-    db 0x0       ; Fegment base, bits 24-31
+    db 0x0       ; Segment base, bits 24-31
 
 ; GDT for Data Segment. base and length identical to code segment
 ; Some flags changed
