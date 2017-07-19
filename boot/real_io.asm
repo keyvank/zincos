@@ -84,36 +84,49 @@ print_hex_real:
 	.HEX_OUT: db '0x0000',0 ; reserve memory for our new string
 
 
-
-; Load AL sectors from drive DL, sector CL, cylinder CH, head DH, into ES:BX in Real-mode.
 load_disk_real:
-	pusha
-	push ax ; Save AX as it is going to be changed by BIOS
-	mov ah, 0x02 ; Reading mode
+	push ax
+	mov di, 0
+	mov si, .DAPACK		; address of "disk address packet"
+	mov byte [si],0x10
+	mov byte [si+1],0
+	mov word [si+2],1
+	mov word [si+4],0x1000
+	mov word [si+6],0
+	mov dword [si+8],1
+	mov dword [si+12],0
+.lp:
+	mov ah, 0x42
 	int 0x13
-	jc .disk_error ; if error (stored in the carry bit)
-	pop dx ; BIOS sets AL to the number of sectors read. Now DL has the previous AL value
-	cmp al, dl ; These should be equal
-	jne .sectors_error
-	popa
+	mov si, .DAPACK		; address of "disk address packet"
+	jc short .error
+	mov byte [si],0x10
+	mov byte [si+1],0
+	mov word [si+2],1
+	add word [si+4],512
+	mov word [si+6],0
+	add dword [si+8],1
+	mov dword [si+12],0
+	inc di
+	pop ax
+	cmp di,ax
+	push ax
+	jne .lp
+	pop ax
 	ret
-	.DISK_ERROR: db "Disk Error. Code: ", 0
-	.SECTORS_ERROR: db "Read error.", 0
-
-.disk_error:
-	mov bx, .DISK_ERROR
-	call print_real
-	mov dh, ah ; AH = Error code, DL = Disk drive that dropped the error
-	call print_hex_real ; Check out the code at http://stanislavs.org/helppc/int_13-1.html
-	jmp .disk_loop
-
-.sectors_error:
-	mov bx, .SECTORS_ERROR
-	call print_real
-
-.disk_loop:
+.error:
+	mov bx, .MSG_READ_ERROR
+  call print_real
 	jmp $
-
+.DAPACK:
+	db	0
+	db	0
+	dw	0		; int 13 resets this to # of blocks actually read/written
+	dw	0		; memory buffer destination address (0:7c00)
+	dw	0		; in memory page zero
+	dd	0		; put the lba to read in this spot
+	dd	0		; more storage bytes only for big lba's ( > 4 bytes )
+.MSG_READ_ERROR: db 'Error reading disk.',0
 
 
 ; Load number of heads in DH and number of sectors per track in CL from drive DL

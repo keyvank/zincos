@@ -5,6 +5,15 @@
 
 call clear_real ; Clear screen. (Defined in real_io.asm)
 
+mov ax, 0
+mov ds, ax
+mov ss, ax
+mov es, ax
+mov fs, ax
+mov gs, ax
+jmp 0:cs0
+cs0:
+
 ; Setting up stack (In real mode!)
 mov bp, 0x9000
 mov sp, bp
@@ -19,14 +28,13 @@ mov bx, MSG_LOAD_LOADER
 call print_real
 call print_newline_real
 
-; Read from disk and store in KERNEL_OFFSET
-mov bx, LOADER_ADDR ; Where to load the loader and kernel
-mov al, LOADER_KERNEL_SIZE
+mov ax, LOADER_KERNEL_SIZE
+mov bx, LOADER_ADDR
+mov cx, 1 ; At LBA 0 is bootsector and at LBA 1 starts loader and kernel
 mov dl, [BOOT_DRIVE]
-mov cl, 0x02 ; Start reading from which sector? From the second sector (Kernel is placed after the bootsector. So it starts from second sector)
-mov ch, 0 ; Cylinder 0
-mov dh, 0 ; Head 0
-call load_disk_real ; (Defined in real_io.asm)
+call load_disk_real
+
+call print_hex_real
 
 call LOADER_ADDR
 
@@ -43,7 +51,7 @@ MSG_LOAD_LOADER: db "Loading loader...",0
 
 BOOT_DRIVE: db 0x80 ; It is a good idea to store it in memory because DL may get overwritten
 LOADER_ADDR equ 0x1000 ; Second stage bootloader address
-LOADER_KERNEL_SIZE equ 0x20 + 0x3 ; Sectors (0x20 sectors for kernel and 3 sectors for loader)
+LOADER_KERNEL_SIZE equ 0x33 + 0x3 ; Sectors (0x33 sectors for kernel and 3 sectors for loader)
 
 ; MBR signature
 times 510-($-$$) db 0
