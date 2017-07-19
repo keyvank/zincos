@@ -1,9 +1,9 @@
-; Defined in isr.c
+; Defined in isr.cpp
 [extern isr_handler]
 [extern irq_handler]
 ; Common ISR code
 isr_common_stub:
-    ; 1. Save CPU state
+  ; 1. Save CPU state
 	pusha ; Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax
 	mov ax, ds ; Lower 16-bits of eax = ds.
 	push eax ; save the data segment descriptor
@@ -13,10 +13,10 @@ isr_common_stub:
 	mov fs, ax
 	mov gs, ax
 
-    ; 2. Call C handler
+  ; 2. Call C handler
 	call isr_handler
 
-    ; 3. Restore state
+  ; 3. Restore state
 	pop eax
 	mov ds, ax
 	mov es, ax
@@ -40,7 +40,7 @@ irq_common_stub:
     mov fs, ax
     mov gs, ax
     call irq_handler ; Different than the ISR code
-    pop ebx  ; Different than the ISR code
+    pop ebx ; Different than the ISR code
     mov ds, bx
     mov es, bx
     mov fs, bx

@@ -1,6 +1,10 @@
 [BITS 32]
 
-global gdt_load     ; Allows the C code to link to this
+; Load GDT.
+; 1st argument: GDT address
+; 2nd argument: CS after lgdt
+; 3nd argument: DS, ES, FS, GS, SS after lgdt
+global gdt_load
 gdt_load:
     push ebp
     mov ebp, esp

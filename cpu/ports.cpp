@@ -1,4 +1,5 @@
 #include "cpu/types.h"
+#include "cpu/ports.h"
 
 u8_t port_byte_in (u16_t const p_port) {
     u8_t result;

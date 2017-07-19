@@ -1,5 +1,5 @@
-#ifndef __DRIVERS__PORTS__
-#define __DRIVERS__PORTS__
+#ifndef __CPU__PORTS__
+#define __CPU__PORTS__
 
 #include "cpu/types.h"
 

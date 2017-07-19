@@ -6,6 +6,60 @@
 
 isr_t interrupt_handlers[256];
 
+/* ISRs reserved for CPU exceptions */
+extern "C" {
+  void isr0();
+  void isr1();
+  void isr2();
+  void isr3();
+  void isr4();
+  void isr5();
+  void isr6();
+  void isr7();
+  void isr8();
+  void isr9();
+  void isr10();
+  void isr11();
+  void isr12();
+  void isr13();
+  void isr14();
+  void isr15();
+  void isr16();
+  void isr17();
+  void isr18();
+  void isr19();
+  void isr20();
+  void isr21();
+  void isr22();
+  void isr23();
+  void isr24();
+  void isr25();
+  void isr26();
+  void isr27();
+  void isr28();
+  void isr29();
+  void isr30();
+  void isr31();
+
+  /* IRQ definitions */
+  void irq0();
+  void irq1();
+  void irq2();
+  void irq3();
+  void irq4();
+  void irq5();
+  void irq6();
+  void irq7();
+  void irq8();
+  void irq9();
+  void irq10();
+  void irq11();
+  void irq12();
+  void irq13();
+  void irq14();
+  void irq15();
+}
+
 /* Can't do this with a loop because we need the address
  * of the function names */
 void isr_irq_install() {
@@ -114,30 +168,28 @@ char const *exception_messages[] = {
     "Reserved"
 };
 
-extern "C" void isr_handler(registers_t r) {
-    kprint("received interrupt: ");
+extern "C" void isr_handler(registers_t const p_registers) {
+    kprint("Received interrupt: ");
     char_t s[3];
-    int_to_ascii(r.int_no, s);
+    int_to_ascii(p_registers.int_no, s);
     kprint(s);
     kprint("\n");
-    kprint(exception_messages[r.int_no]);
+    kprint(exception_messages[p_registers.int_no]);
     kprint("\n");
 }
 
-void register_interrupt_handler(u8_t n, isr_t handler) {
-    interrupt_handlers[n] = handler;
+void register_interrupt_handler(u8_t const p_index, isr_t const p_handler) {
+    interrupt_handlers[p_index] = p_handler;
 }
 
-extern "C" void irq_handler(registers_t r) {
-
+extern "C" void irq_handler(registers_t const p_registers) {
     /* After every interrupt we need to send an EOI to the PICs
      * or they will not send another interrupt again */
-    if (r.int_no >= 40) port_byte_out(0xA0, 0x20); /* slave */
-    port_byte_out(0x20, 0x20); /* master */
-
+    if (p_registers.int_no >= 40) port_byte_out(0xA0, 0x20); /* Slave */
+    port_byte_out(0x20, 0x20); /* Master */
     /* Handle the interrupt in a more modular way */
-    if (interrupt_handlers[r.int_no] != 0) {
-        isr_t handler = interrupt_handlers[r.int_no];
-        handler(r);
+    if (interrupt_handlers[p_registers.int_no] != 0) {
+        isr_t handler = interrupt_handlers[p_registers.int_no];
+        handler(p_registers);
     }
 }

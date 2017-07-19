@@ -3,19 +3,10 @@
 
 #include "cpu/types.h"
 
-typedef struct {
-	u16_t limit_low;
-	u16_t base_low;
-	u8_t base_middle;
-	u8_t access;
-	u8_t granularity;
-	u8_t base_high;
-} __attribute__((packed)) gdt_entry_t;
-
-typedef struct {
-  u16_t limit;
-  u32_t base;
-} __attribute__((packed)) gdt_ptr_t;
+#define KERNEL_CODE_SEGMENT (0x08)
+#define KERNEL_DATA_SEGMENT (0x10)
+#define USER_CODE_SEGMENT (0x18)
+#define USER_DATA_SEGMENT (0x20)
 
 void gdt_install();
 
