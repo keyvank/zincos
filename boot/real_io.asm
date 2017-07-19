@@ -113,3 +113,21 @@ load_disk_real:
 
 .disk_loop:
 	jmp $
+
+
+
+; Load number of heads in DH and number of sectors per track in CL from drive DL
+load_disk_geometry_real:
+	push ax
+	push bx
+
+	xor ax, ax
+	mov di, ax
+	mov es, ax
+	mov ah, 8
+	int 0x13
+	inc dh
+
+	pop bx
+	pop ax
+	ret
