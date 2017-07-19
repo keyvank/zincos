@@ -3,6 +3,13 @@
 
 call enable_a20 ; (Defined in a20.asm)
 
+mov ax, KERNEL_SIZE
+mov bx, KERNEL_ADDR
+mov cx, KERNEL_LBA
+mov dl, BOOT_DRIVE
+jmp load_disk_real
+READ_DONE:
+
 sti
 
 ; Set memory size in multibit_info structure
@@ -59,6 +66,9 @@ BEGIN_PROTECTED:
 MSG_PROTECTED_MODE: db "Protected-mode!",0
 LOADER_ADDR equ 0x1000
 KERNEL_ADDR equ LOADER_ADDR + 0x600 ; The same one we used when linking the kernel
+KERNEL_SIZE equ 0x70 ; Sectors
+KERNEL_LBA equ 4 ; At LBA 0 is bootsector and at LBA 1 starts loader and at LBA 4 starts kernel
+BOOT_DRIVE equ 0x80
 
 memory_map: ; Free space for memory map
 

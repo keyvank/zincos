@@ -11,7 +11,7 @@ CPP_FILES = $(shell find . -type f -name '*.cpp')
 KERNEL_OBJECTS = kernel/entry.o ${CPP_FILES:.cpp=.o } ${C_FILES:.c=.o } cpu/interrupt.o cpu/asmutil.o
 
 all: ./kernel/kernel.bin ./boot/bootloader.bin ./boot/loader.bin
-	dd if=/dev/null of=./kernel/kernel.bin bs=512 count=0 seek=51 # Padding the kernel to 51 sectors
+	dd if=/dev/null of=./kernel/kernel.bin bs=512 count=0 seek=112 # Padding the kernel to 112 (0x70) sectors (56 KB)
 	cat ./boot/bootloader.bin ./boot/loader.bin ./kernel/kernel.bin > os.bin
 	$(EMU) $(EMUFLAGS) -hda ./os.bin
 

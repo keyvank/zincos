@@ -5,6 +5,7 @@
 
 call clear_real ; Clear screen. (Defined in real_io.asm)
 
+; Zeroing segment registers
 mov ax, 0
 mov ds, ax
 mov ss, ax
@@ -28,15 +29,13 @@ mov bx, MSG_LOAD_LOADER
 call print_real
 call print_newline_real
 
-mov ax, LOADER_KERNEL_SIZE
+mov ax, LOADER_SIZE
 mov bx, LOADER_ADDR
-mov cx, 1 ; At LBA 0 is bootsector and at LBA 1 starts loader and kernel
-mov dl, [BOOT_DRIVE]
-call load_disk_real
-
-call print_hex_real
-
-call LOADER_ADDR
+mov cx, LOADER_LBA
+mov dl, BOOT_DRIVE
+jmp load_disk_real
+READ_DONE:
+  call LOADER_ADDR
 
 ; Infinite loop, Never going to execute
 jmp $
@@ -49,9 +48,10 @@ NEW_LINE: db 0x0a,0x0d,0
 MSG_REAL_MODE: db "Real-Mode!",0
 MSG_LOAD_LOADER: db "Loading loader...",0
 
-BOOT_DRIVE: db 0x80 ; It is a good idea to store it in memory because DL may get overwritten
+BOOT_DRIVE equ 0x80 ; It is a good idea to store it in memory because DL may get overwritten
 LOADER_ADDR equ 0x1000 ; Second stage bootloader address
-LOADER_KERNEL_SIZE equ 0x33 + 0x3 ; Sectors (0x33 sectors for kernel and 3 sectors for loader)
+LOADER_SIZE equ 0x3 ; Sectors (0x33 sectors for kernel and 3 sectors for loader)
+LOADER_LBA equ 1 ; At LBA 0 is bootsector and at LBA 1 starts loader
 
 ; MBR signature
 times 510-($-$$) db 0

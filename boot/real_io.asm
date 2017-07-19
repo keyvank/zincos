@@ -83,49 +83,39 @@ print_hex_real:
 
 	.HEX_OUT: db '0x0000',0 ; reserve memory for our new string
 
-
+; Reads AX sectors of drive DL from LBA CX to [BX] and jumps to READ_DONE on done
 load_disk_real:
-	push ax
+	mov word [.SIZE], ax
 	mov di, 0
 	mov si, .DAPACK		; address of "disk address packet"
-	mov byte [si],0x10
-	mov byte [si+1],0
-	mov word [si+2],1
-	mov word [si+4],0x1000
-	mov word [si+6],0
-	mov dword [si+8],1
-	mov dword [si+12],0
+	mov word [si+4],bx
+	mov dword [si+8],0
+	add word [si+8],cx
 .lp:
 	mov ah, 0x42
 	int 0x13
 	mov si, .DAPACK		; address of "disk address packet"
 	jc short .error
-	mov byte [si],0x10
-	mov byte [si+1],0
-	mov word [si+2],1
 	add word [si+4],512
-	mov word [si+6],0
 	add dword [si+8],1
-	mov dword [si+12],0
 	inc di
-	pop ax
-	cmp di,ax
-	push ax
+
+	cmp di,[.SIZE]
 	jne .lp
-	pop ax
-	ret
+	jmp READ_DONE
 .error:
 	mov bx, .MSG_READ_ERROR
   call print_real
 	jmp $
 .DAPACK:
-	db	0
-	db	0
-	dw	0		; int 13 resets this to # of blocks actually read/written
-	dw	0		; memory buffer destination address (0:7c00)
-	dw	0		; in memory page zero
-	dd	0		; put the lba to read in this spot
-	dd	0		; more storage bytes only for big lba's ( > 4 bytes )
+	db 0x10
+	db 0
+	dw 1 ; INT 0x13 resets this to # of blocks actually read/written
+	dw 0 ; Memory buffer destination address
+	dw 0
+	dd 0 ; Put the LBA to read in this spot
+	dd 0 ; More storage bytes only for big LBAs ( > 4 bytes )
+.SIZE: dw 0
 .MSG_READ_ERROR: db 'Error reading disk.',0
 
 
