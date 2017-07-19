@@ -80,7 +80,7 @@ typedef struct {
    u32_t edi, esi, ebp, esp, ebx, edx, ecx, eax; /* Pushed by pusha. */
    u32_t int_no, err_code; /* Interrupt number and error code (if applicable) */
    u32_t eip, cs, eflags, useresp, ss; /* Pushed by the processor automatically */
-} registers_t;
+} __attribute__((packed)) registers_t;
 
 typedef void (*isr_t)(registers_t);
 
