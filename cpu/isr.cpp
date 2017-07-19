@@ -76,7 +76,7 @@ void isr_irq_install() {
 }
 
 /* To print the message which defines every exception */
-char *exception_messages[] = {
+char const *exception_messages[] = {
     "Division By Zero",
     "Debug",
     "Non Maskable Interrupt",
@@ -114,7 +114,7 @@ char *exception_messages[] = {
     "Reserved"
 };
 
-void isr_handler(registers_t r) {
+extern "C" void isr_handler(registers_t r) {
     kprint("received interrupt: ");
     char_t s[3];
     int_to_ascii(r.int_no, s);
@@ -128,7 +128,7 @@ void register_interrupt_handler(u8_t n, isr_t handler) {
     interrupt_handlers[n] = handler;
 }
 
-void irq_handler(registers_t r) {
+extern "C" void irq_handler(registers_t r) {
 
     /* After every interrupt we need to send an EOI to the PICs
      * or they will not send another interrupt again */

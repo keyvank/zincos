@@ -64,12 +64,12 @@ size_t print_char(char_t c, int col, int row, char_t attr) {
     if (offset >= MAX_ROWS * MAX_COLS * 2) {
         size_t i;
         for (i = 1; i < MAX_ROWS; i++)
-            memory_copy( (addr_t)(get_offset(0, i) + VIDEO_ADDRESS),
-                         (addr_t)(get_offset(0, i-1) + VIDEO_ADDRESS),
+            memory_copy( (u8_t *)(get_offset(0, i) + VIDEO_ADDRESS),
+                         (u8_t *)(get_offset(0, i-1) + VIDEO_ADDRESS),
                          MAX_COLS * 2);
 
         /* Blank last line */
-        str_t last_line = (str_t)(get_offset(0, MAX_ROWS-1) + VIDEO_ADDRESS);
+        char_t *last_line = (char_t *)(get_offset(0, MAX_ROWS-1) + VIDEO_ADDRESS);
         for (i = 0; i < MAX_COLS * 2; i++) last_line[i] = 0;
 
         offset -= 2 * MAX_COLS;

@@ -1,6 +1,6 @@
 #include "kernel/util.h"
 
-void memory_copy(char *source, char *dest, int nbytes) {
+void memory_copy(u8_t *source, u8_t *dest, int nbytes) {
     int i;
     for (i = 0; i < nbytes; i++) {
         *(dest + i) = *(source + i);
@@ -8,7 +8,7 @@ void memory_copy(char *source, char *dest, int nbytes) {
 }
 
 void memory_set(u8_t *dest, u8_t val, u32_t len) {
-    u8_t *temp = (u8_t *)dest;
+    u8_t *temp = dest;
     for ( ; len != 0; len--) *temp++ = val;
 }
 

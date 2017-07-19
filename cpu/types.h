@@ -12,7 +12,7 @@ typedef char s8_t;
 typedef void *addr_t;
 typedef u32_t size_t;
 typedef char char_t;
-typedef char_t *str_t;
+typedef char_t const *str_t;
 typedef u8_t bool_t;
 
 #define true (1)

@@ -15,8 +15,7 @@ typedef struct {
 	u32_t	acpi_3_0;
 } memory_region;
 
-
-void kmain(multiboot_info_t *p_boot_info) {
+extern "C" void kmain(multiboot_info_t *p_boot_info) {
 	clear_screen();
 	kprint("We are in the kernel!\nWelcome to ZincOS!\n\n");
 

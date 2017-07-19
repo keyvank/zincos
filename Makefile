@@ -1,11 +1,14 @@
 CC = i386-elf-gcc
 CFLAGS = -ffreestanding -I. -std=gnu99 -Wall -Wextra -Werror
+CPPC = i386-elf-c++
+CPPFLAGS = -ffreestanding -I. -std=c++11 -Wall -Wextra -Werror -fno-exceptions -fno-rtti
 LD = i386-elf-ld
 AS = nasm
 EMU = qemu-system-i386
 EMUFLAGS = -m 1024
 C_FILES = $(shell find . -type f -name '*.c')
-KERNEL_OBJECTS = kernel/entry.o ${C_FILES:.c=.o } cpu/interrupt.o cpu/asmutil.o
+CPP_FILES = $(shell find . -type f -name '*.cpp')
+KERNEL_OBJECTS = kernel/entry.o ${CPP_FILES:.cpp=.o } ${C_FILES:.c=.o } cpu/interrupt.o cpu/asmutil.o
 
 all: ./kernel/kernel.bin ./boot/bootloader.bin ./boot/loader.bin
 	dd if=/dev/null of=./kernel/kernel.bin bs=512 count=0 seek=32 # Padding the kernel to 32 sectors
@@ -23,6 +26,9 @@ all: ./kernel/kernel.bin ./boot/bootloader.bin ./boot/loader.bin
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $^ -o $@
+
+%.o: %.cpp
+	$(CPPC) $(CPPFLAGS) -c $^ -o $@
 
 %.o: %.asm
 	$(AS) $^ -f elf -o $@
