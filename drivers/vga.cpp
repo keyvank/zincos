@@ -112,6 +112,11 @@ void clear_screen() {
     set_cursor_offset(get_offset(0, 0));
 }
 
+void kprint(u32_t p_integer){
+  char str[20];
+  int_to_ascii(p_integer,str);
+  kprint(str);
+}
 
 size_t get_offset(size_t col, size_t row) { return 2 * (row * MAX_COLS + col); }
 size_t get_offset_row(size_t offset) { return offset / (2 * MAX_COLS); }
