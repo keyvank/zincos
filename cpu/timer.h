@@ -1,8 +1,5 @@
-#ifndef __CPU__TIMER__
-#define __CPU__TIMER__
+#pragma once
 
 #include "kernel/util.h"
 
 void init_timer(u32_t freq);
-
-#endif

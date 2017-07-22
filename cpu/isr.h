@@ -1,5 +1,4 @@
-#ifndef __CPU__ISR__
-#define __CPU__ISR__
+#pragma once
 
 #include "cpu/types.h"
 
@@ -31,5 +30,3 @@ typedef void (*isr_t)(registers_t);
 
 void register_interrupt_handler(u8_t const p_index, isr_t const p_handler);
 void isr_irq_install();
-
-#endif

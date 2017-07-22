@@ -1,5 +1,4 @@
-#ifndef __CPU__GDT__
-#define __CPU__GDT__
+#pragma once
 
 #include "cpu/types.h"
 
@@ -9,5 +8,3 @@
 #define USER_DATA_SEGMENT (0x20)
 
 void gdt_install();
-
-#endif

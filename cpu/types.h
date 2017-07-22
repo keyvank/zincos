@@ -1,5 +1,4 @@
-#ifndef __CPU__TYPES__
-#define __CPU__TYPES__
+#pragma once
 
 /* Instead of using 'chars' to allocate non-character bytes,
  * we will use these new type with no semantic meaning */
@@ -20,5 +19,3 @@ typedef u8_t bool_t;
 
 #define low_16(address) (u16_t)((address) & 0xFFFF)
 #define high_16(address) (u16_t)(((address) >> 16) & 0xFFFF)
-
-#endif
