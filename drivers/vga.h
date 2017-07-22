@@ -1,5 +1,4 @@
-#ifndef __DRIVERS__VGA__VGA_TEXT__
-#define __DRIVERS__VGA__VGA_TEXT__
+#pragma once
 
 #include "cpu/types.h"
 
@@ -17,5 +16,3 @@
 void clear_screen();
 void kprint_at(str_t message, int col, int row);
 void kprint(str_t message);
-
-#endif

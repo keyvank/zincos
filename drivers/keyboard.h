@@ -1,6 +1,3 @@
-#ifndef __DRIVERS__KEYBOARD__
-#define __DRIVERS__KEYBOARD__
+#pragma once
 
 void init_keyboard();
-
-#endif
