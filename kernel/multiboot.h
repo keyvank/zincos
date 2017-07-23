@@ -1,16 +1,15 @@
-#ifndef __KERNEL__BOOTINFO__
-#define __KERNEL__BOOTINFO__
+#pragma once
 
 #include "cpu/types.h"
 
 typedef struct {
 	u32_t	flags;
-	u32_t	memoryLo;
-	u32_t	memoryHi;
-	u32_t	bootDevice;
-	u32_t	cmdLine;
-	u32_t	modsCount;
-	u32_t	modsAddr;
+	u32_t	memory_low;
+	u32_t	memory_high;
+	u32_t	boot_device;
+	u32_t	cmd_line;
+	u32_t	mods_count;
+	u32_t	mods_addr;
 	u32_t	syms0;
 	u32_t	syms1;
 	u32_t	syms2;
@@ -26,6 +25,13 @@ typedef struct {
 	u16_t	vbe_mode;
 	u32_t	vbe_interface_addr;
 	u16_t	vbe_interface_len;
-} multiboot_info_t;
+} __attribute__((packed)) multiboot_info_t;
 
-#endif
+typedef struct {
+	u32_t	start_low;
+	u32_t	start_high;
+	u32_t	size_low;
+	u32_t	size_high;
+	u32_t	type;
+	u32_t	acpi_3_0;
+} __attribute__((packed)) multiboot_memory_map_t;
