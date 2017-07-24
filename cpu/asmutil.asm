@@ -30,3 +30,22 @@ gdt_load:
     popa
     leave
     ret
+
+global enable_paging
+enable_paging:
+  push ebp
+  mov ebp, esp
+  mov eax, cr0
+  or eax, 0x80000000
+  mov cr0, eax
+  leave
+  ret
+
+global load_page_directory
+load_page_directory:
+  push ebp
+  mov ebp, esp
+  mov eax, dword [ebp+8]
+  mov cr3, eax
+  leave
+  ret
