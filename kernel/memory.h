@@ -2,6 +2,8 @@
 
 #include <libcpp/list.h>
 
+#define NULL (0)
+
 struct memory_region {
   addr_t base;
   size_t size;
@@ -22,19 +24,23 @@ public:
   memory &operator=(memory &&) = delete;
 
   size_t get_block_count() const;
-  u32_t first_free() const;
 
-  inline void mark_free(u32_t const p_bit);
-  inline void mark_used(u32_t const p_bit);
-  inline bool is_used(u32_t const p_bit) const;
+  inline void mark_block_free(u32_t const p_block);
+  inline void mark_block_used(u32_t const p_block);
+  inline bool is_block_used(u32_t const p_block) const;
+
+  addr_t allocate_block();
+  addr_t force_allocate_block(u32_t const p_block);
+  addr_t force_allocate_blocks(u32_t const p_block, u32_t const p_count);
+  void free_block(addr_t const p_address);
 };
 
-inline void memory::mark_used(u32_t const p_bit) {
-  reinterpret_cast<u32_t *>(this->m_data_block_addr)[p_bit / 32] |= (1 << (p_bit % 32));
+inline void memory::mark_block_used(u32_t const p_block) {
+  reinterpret_cast<u32_t *>(this->m_data_block_addr)[p_block / 32] |= (1 << (p_block % 32));
 }
-inline void memory::mark_free(u32_t const p_bit) {
-  reinterpret_cast<u32_t *>(this->m_data_block_addr)[p_bit / 32] &= ~(1 << (p_bit % 32));
+inline void memory::mark_block_free(u32_t const p_block) {
+  reinterpret_cast<u32_t *>(this->m_data_block_addr)[p_block / 32] &= ~(1 << (p_block % 32));
 }
-inline bool memory::is_used(u32_t const p_bit) const {
- return reinterpret_cast<u32_t *>(this->m_data_block_addr)[p_bit / 32] &  (1 << (p_bit % 32));
+inline bool memory::is_block_used(u32_t const p_block) const {
+ return reinterpret_cast<u32_t *>(this->m_data_block_addr)[p_block / 32] &  (1 << (p_block % 32));
 }
