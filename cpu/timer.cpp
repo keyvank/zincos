@@ -4,25 +4,12 @@
 #include "cpu/isr.h"
 #include "cpu/ports.h"
 
-u32_t tick = 0;
-
-static void timer_callback(registers_t regs) {
-    UNUSED(regs);
-    tick++;
-    kprint("Tick: ");
-
-    char tick_ascii[256];
-    int_to_ascii(tick, tick_ascii);
-    kprint(tick_ascii);
-    kprint("\n");
-}
-
-void init_timer(u32_t freq) {
+void init_timer(u32_t const p_frequency, isr_t const p_handler) {
     /* Install the function we just wrote */
-    register_interrupt_handler(IRQ0, timer_callback);
+    register_interrupt_handler(IRQ0, p_handler);
 
     /* Get the PIT value: hardware clock at 1193180 Hz */
-    u32_t divisor = 1193180 / freq;
+    u32_t divisor = 1193180 / p_frequency;
     u8_t low  = (u8_t)(divisor & 0xFF);
     u8_t high = (u8_t)( (divisor >> 8) & 0xFF);
     /* Send the command */

@@ -131,33 +131,30 @@ void isr_irq_install() {
 
 /* To print the message which defines every exception */
 char const *exception_messages[] = {
-    "Division By Zero",
-    "Debug",
-    "Non Maskable Interrupt",
-    "Breakpoint",
-    "Into Detected Overflow",
-    "Out of Bounds",
-    "Invalid Opcode",
-    "No Coprocessor",
-
-    "Double Fault",
-    "Coprocessor Segment Overrun",
-    "Bad TSS",
-    "Segment Not Present",
-    "Stack Fault",
-    "General Protection Fault",
-    "Page Fault",
-    "Unknown Interrupt",
-
-    "Coprocessor Fault",
-    "Alignment Check",
-    "Machine Check",
+    "Division By Zero", // 0
+    "Debug", // 1
+    "Non Maskable Interrupt", // 2
+    "Breakpoint", // 3
+    "Into Detected Overflow", // 4
+    "Out of Bounds", // 5
+    "Invalid Opcode", // 6
+    "No Coprocessor", // 7
+    "Double Fault", // 8
+    "Coprocessor Segment Overrun", // 9
+    "Bad TSS", // 10
+    "Segment Not Present", // 11
+    "Stack Fault", // 12
+    "General Protection Fault", // 13
+    "Page Fault", // 14
+    "Unknown Interrupt", // 15
+    "Coprocessor Fault", // 16
+    "Alignment Check", // 17
+    "Machine Check", // 18
     "Reserved",
     "Reserved",
     "Reserved",
     "Reserved",
     "Reserved",
-
     "Reserved",
     "Reserved",
     "Reserved",
@@ -169,13 +166,10 @@ char const *exception_messages[] = {
 };
 
 extern "C" void isr_handler(registers_t const p_registers) {
-    kprint("Received interrupt: ");
-    char_t s[3];
-    int_to_ascii(p_registers.int_no, s);
-    kprint(s);
-    kprint("\n");
-    kprint(exception_messages[p_registers.int_no]);
-    kprint("\n");
+    if (interrupt_handlers[p_registers.int_no] != 0) {
+        isr_t handler = interrupt_handlers[p_registers.int_no];
+        handler(p_registers);
+    }
 }
 
 void register_interrupt_handler(u8_t const p_index, isr_t const p_handler) {
@@ -187,7 +181,6 @@ extern "C" void irq_handler(registers_t const p_registers) {
      * or they will not send another interrupt again */
     if (p_registers.int_no >= 40) port_byte_out(0xA0, 0x20); /* Slave */
     port_byte_out(0x20, 0x20); /* Master */
-    /* Handle the interrupt in a more modular way */
     if (interrupt_handlers[p_registers.int_no] != 0) {
         isr_t handler = interrupt_handlers[p_registers.int_no];
         handler(p_registers);

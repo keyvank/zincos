@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cpu/types.h"
+#include "cpu/isr.h"
 
 enum PAGE_TABLE_ENTRY_FLAGS {
 	PAGE_TABLE_ENTRY_PRESENT = 1,
@@ -39,3 +40,5 @@ typedef struct {
 typedef struct {
 	page_table_entry_t entries[1024];
 } __attribute__((packed)) page_directory_t;
+
+void init_paging(isr_t const p_page_fault_handler);

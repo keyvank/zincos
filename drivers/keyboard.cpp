@@ -7,21 +7,8 @@
 void print_letter(u8_t scancode);
 void init_keyboard();
 
-static void keyboard_callback(registers_t regs) {
-    UNUSED(regs);
-    /* The PIC leaves us the scancode in port 0x60 */
-    u8_t scancode = port_byte_in(0x60);
-    char sc_ascii[16];
-    int_to_ascii(scancode, sc_ascii);
-    kprint("Keyboard scancode: ");
-    kprint(sc_ascii);
-    kprint(", ");
-    print_letter(scancode);
-    kprint("\n");
-}
-
-void init_keyboard() {
-   register_interrupt_handler(IRQ1, keyboard_callback);
+void init_keyboard(isr_t const p_handler) {
+   register_interrupt_handler(IRQ1, p_handler);
 }
 
 void print_letter(u8_t scancode) {
