@@ -33,7 +33,7 @@ kernel::kernel(multiboot_info_t const &p_multiboot_info) : m_memory(get_best_reg
   for(size_t i = 0; i < 1024; i++) {
     for(size_t j = 0; j < 1024; j++)
       this->m_page_tables[i].entries[j] = ((i * 1024 + j)  * 0x1000) | PAGE_TABLE_ENTRY_PRESENT | PAGE_TABLE_ENTRY_WRITABLE;
-    this->m_page_directory->entries[i] = reinterpret_cast<u32_t>(&(this->m_page_tables[i])) | 3;
+    this->m_page_directory->entries[i] = reinterpret_cast<u32_t>(&(this->m_page_tables[i])) | PAGE_DIRECTORY_ENTRY_PRESENT | PAGE_DIRECTORY_ENTRY_WRITABLE;
   }
   load_page_directory(reinterpret_cast<u32_t *>(this->m_page_directory));
   enable_paging();
