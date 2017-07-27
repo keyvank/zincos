@@ -63,3 +63,23 @@ addr_t memory::force_allocate_blocks(u32_t const p_block, u32_t const p_count) {
   else
     return NULL;
 }
+
+memory_region get_best_region(multiboot_info_t const &p_multiboot_info) {
+  const size_t MAX_REGION_COUNT = 15;
+  multiboot_memory_map_t *region=(multiboot_memory_map_t *)p_multiboot_info.mmap_addr;
+  s32_t best_region_index = -1;
+  for(size_t i = 0; i < MAX_REGION_COUNT; i++) {
+    if (i > 0 && region[i].start_low == 0)
+				break;
+		if (region[i].type==1 && region[i].start_low > (64 * _KB)){
+      if(best_region_index == -1 || region[i].size_low > region[best_region_index].size_low)
+        best_region_index = i;
+		}
+	}
+  if(best_region_index != -1) {
+    memory_region reg{reinterpret_cast<addr_t>(region[best_region_index].start_low),region[best_region_index].size_low};
+    return reg;
+  }
+  else
+    return memory_region{0,0};
+}

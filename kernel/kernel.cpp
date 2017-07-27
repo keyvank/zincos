@@ -10,19 +10,7 @@
 #include "cpu/asmutil.h"
 #include "kernel/paging.h"
 
-memory_region get_available_region(multiboot_info_t const &p_multiboot_info){
-  const size_t MAX_REGION_COUNT = 15;
-  multiboot_memory_map_t *region=(multiboot_memory_map_t *)p_multiboot_info.mmap_addr;
-  for(size_t i = 0; i < MAX_REGION_COUNT; i++) {
-		if (region[i].type==1 && region[i].start_low > (64 * _KB)){
-			memory_region reg{reinterpret_cast<addr_t>(region[i].start_low),region[i].size_low};
-      return reg;
-		}
-	}
-  return memory_region{0,0};
-}
-
-kernel::kernel(multiboot_info_t const &p_multiboot_info) : m_memory(get_available_region(p_multiboot_info)), m_page_directory(NULL), m_page_tables(NULL) {
+kernel::kernel(multiboot_info_t const &p_multiboot_info) : m_memory(get_best_region(p_multiboot_info)), m_page_directory(NULL), m_page_tables(NULL) {
   clear_screen();
 	kprint("We are in the kernel!\nWelcome to ZincOS!\n\n");
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "kernel/multiboot.h"
 #include <libcpp/list.h>
 
 #define NULL (0)
@@ -44,3 +45,5 @@ inline void memory::mark_block_free(u32_t const p_block) {
 inline bool memory::is_block_used(u32_t const p_block) const {
  return reinterpret_cast<u32_t *>(this->m_data_block_addr)[p_block / 32] &  (1 << (p_block % 32));
 }
+
+memory_region get_best_region(multiboot_info_t const &p_multiboot_info);
