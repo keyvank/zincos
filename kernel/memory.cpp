@@ -34,6 +34,24 @@ addr_t memory::allocate_block() {
   return NULL;
 }
 
+// Returns NULL if there is no free block available
+addr_t memory::allocate_blocks(u32_t const p_count) {
+  u32_t curr_count = 0;
+  for(size_t i = 0; i < this->m_data_block_count; i++) {
+    if(!this->is_block_used(i))
+      curr_count++;
+    else
+      curr_count = 0;
+    if(curr_count == p_count) {
+      size_t first = i + 1 - p_count;
+      for(size_t j = 0; j < p_count; j++)
+        this->mark_block_used(first + j);
+      return this->m_data_block_addr + first * BLOCK_SIZE;
+    }
+  }
+  return NULL;
+}
+
 // It doesn't free the block when the address is invalid. Fails silently.
 void memory::free_block(addr_t const p_address) {
   u32_t offset = reinterpret_cast<u32_t>(reinterpret_cast<u8_t *>(p_address) - reinterpret_cast<u32_t>(this->m_data_block_addr));
