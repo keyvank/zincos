@@ -37,13 +37,18 @@ public:
 };
 
 inline void memory::mark_block_used(u32_t const p_block) {
-  reinterpret_cast<u32_t *>(this->m_data_block_addr)[p_block / 32] |= (1 << (p_block % 32));
+  if(p_block < this->m_data_block_count)
+    reinterpret_cast<u32_t *>(this->m_data_block_addr)[p_block / 32] |= (1 << (p_block % 32));
 }
 inline void memory::mark_block_free(u32_t const p_block) {
-  reinterpret_cast<u32_t *>(this->m_data_block_addr)[p_block / 32] &= ~(1 << (p_block % 32));
+  if(p_block < this->m_data_block_count)
+    reinterpret_cast<u32_t *>(this->m_data_block_addr)[p_block / 32] &= ~(1 << (p_block % 32));
 }
 inline bool memory::is_block_used(u32_t const p_block) const {
- return reinterpret_cast<u32_t *>(this->m_data_block_addr)[p_block / 32] &  (1 << (p_block % 32));
+  if(p_block < this->m_data_block_count)
+    return reinterpret_cast<u32_t *>(this->m_data_block_addr)[p_block / 32] &  (1 << (p_block % 32));
+  else
+    return true; // You can't use a non-existing block!
 }
 
 memory_region get_best_region(multiboot_info_t const &p_multiboot_info);
