@@ -30,9 +30,7 @@ public:
   inline void mark_block_used(u32_t const p_block);
   inline bool is_block_used(u32_t const p_block) const;
 
-  addr_t allocate_block();
   addr_t allocate_blocks(u32_t const p_count);
-  addr_t force_allocate_block(u32_t const p_block);
   addr_t force_allocate_blocks(u32_t const p_block, u32_t const p_count);
   void free_block(addr_t const p_address);
 };

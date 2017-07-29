@@ -24,18 +24,8 @@ size_t memory::get_block_count() const {
 }
 
 // Returns NULL if there is no free block available
-addr_t memory::allocate_block() {
-  for(size_t i = 0; i < this->m_data_block_count; i++) {
-    if(!this->is_block_used(i)) {
-      this->mark_block_used(i);
-      return this->m_data_block_addr + i * BLOCK_SIZE;
-    }
-  }
-  return NULL;
-}
-
-// Returns NULL if there is no free block available
 addr_t memory::allocate_blocks(u32_t const p_count) {
+  if(p_count == 0) return NULL;
   u32_t curr_count = 0;
   for(size_t i = 0; i < this->m_data_block_count; i++) {
     if(!this->is_block_used(i))
@@ -52,26 +42,8 @@ addr_t memory::allocate_blocks(u32_t const p_count) {
   return NULL;
 }
 
-// It doesn't free the block when the address is invalid. Fails silently.
-void memory::free_block(addr_t const p_address) {
-  u32_t offset = reinterpret_cast<u32_t>(reinterpret_cast<u8_t *>(p_address) - reinterpret_cast<u32_t>(this->m_data_block_addr));
-  if(offset % BLOCK_SIZE == 0) {
-    u32_t block = offset / BLOCK_SIZE;
-    if(block < this->m_data_block_count)
-      this->mark_block_free(block);
-  }
-}
-
-addr_t memory::force_allocate_block(u32_t const p_block) {
-  if(p_block < this->m_data_block_count) {
-    this->mark_block_used(p_block);
-    return this->m_data_block_addr + p_block * BLOCK_SIZE;
-  }
-  else
-    return NULL;
-}
-
 addr_t memory::force_allocate_blocks(u32_t const p_block, u32_t const p_count) {
+  if(p_count == 0) return NULL;
   u32_t end_block = p_block + p_count;
   if(p_block < this->m_data_block_count && end_block <= this->m_data_block_count) {
     for(u32_t i = p_block; i < end_block; i++)
@@ -80,6 +52,16 @@ addr_t memory::force_allocate_blocks(u32_t const p_block, u32_t const p_count) {
   }
   else
     return NULL;
+}
+
+// It doesn't free the block when the address is invalid. Fails silently.
+void memory::free_block(addr_t const p_address) {
+  u32_t offset = reinterpret_cast<u32_t>(reinterpret_cast<u8_t *>(p_address) - reinterpret_cast<u32_t>(this->m_data_block_addr));
+  if(offset % BLOCK_SIZE == 0) {
+    u32_t block = offset / BLOCK_SIZE;
+    if(block < this->m_data_block_count)
+      this->mark_block_free(block);
+  }
 }
 
 memory_region get_best_region(multiboot_info_t const &p_multiboot_info) {

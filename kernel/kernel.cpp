@@ -49,8 +49,8 @@ kernel::kernel(multiboot_info_t const &p_multiboot_info) : m_memory(get_best_reg
   kprint(this->m_memory.get_block_count());
   kprint(" memory blocks initialized!\n");
 
-  this->m_page_directory = reinterpret_cast<page_directory_t *>(this->m_memory.force_allocate_block(1)); // Allocate a block for Page Directory
-  this->m_page_tables = reinterpret_cast<page_table_t *>(this->m_memory.force_allocate_blocks(2,1024)); // Allocate 1024 blocks for Page Tables
+  this->m_page_directory = reinterpret_cast<page_directory_t *>(this->m_memory.allocate_blocks(1)); // Allocate a block for Page Directory
+  this->m_page_tables = reinterpret_cast<page_table_t *>(this->m_memory.allocate_blocks(1024)); // Allocate 1024 blocks for Page Tables
   if(this->m_page_directory == NULL || this->m_page_tables == NULL) {
     kprint("Cannot allocate memory for paging!");
     return;
