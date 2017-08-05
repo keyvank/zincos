@@ -2,7 +2,7 @@
 #include "cpu/asmutil.h"
 #include "kernel/util.h"
 
-#define GDT_NUM_ENTRIES (5)
+#define GDT_NUM_ENTRIES (6)
 
 typedef struct {
 	u16_t limit_low;
@@ -31,6 +31,18 @@ static void gdt_set_gate(size_t const p_index, u32_t const p_base, u32_t const p
 	gdt[p_index].access = p_access;
 }
 
+tss_entry_t tss_entry;
+void tss_install(u32_t const p_index, u32_t p_ss0, u32_t p_esp0) {
+	u32_t base = (u32_t) &tss_entry;
+  u32_t limit = base + sizeof(tss_entry_t);
+  gdt_set_gate(p_index, base, limit, 0xE9, 0x00);
+  memory_set((u8_t *)&tss_entry, 0, sizeof(tss_entry_t));
+  tss_entry.ss0  = p_ss0;
+  tss_entry.esp0 = p_esp0;
+  tss_entry.cs   = KERNEL_CODE_SEGMENT | 0x03;
+  tss_entry.ss = tss_entry.ds = tss_entry.es = tss_entry.fs = tss_entry.gs = (KERNEL_DATA_SEGMENT | 0x03);
+}
+
 void gdt_install() {
 	gdt_reg.limit = (sizeof(gdt_entry_t) * GDT_NUM_ENTRIES) - 1;
 	gdt_reg.base = (u32_t)&gdt;
@@ -39,5 +51,7 @@ void gdt_install() {
 	gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF); /* Kernel Data Segment. Base: 0, Limit: 4GB */
 	gdt_set_gate(3, 0, 0xFFFFFFFF, 0xFA, 0xCF); /* User Code Segment. Base: 0, Limit: 4GB */
 	gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); /* User Data Segment. Base: 0, Limit: 4GB */
+	tss_install(5, KERNEL_DATA_SEGMENT, 0x00);
   gdt_load(&gdt_reg, KERNEL_CODE_SEGMENT, KERNEL_DATA_SEGMENT);
+	tss_load(TSS_SEGMENT | 0x03);
 }

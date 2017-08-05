@@ -49,3 +49,38 @@ load_page_directory:
   mov cr3, eax
   leave
   ret
+
+global enter_usermode
+enter_usermode:
+  push ebp
+  mov ebp, esp
+  cli
+  mov ax, 0x23 ; Usermode Data Selector is 0x20 (GDT entry 3). Also sets RPL to 3
+  mov ds, ax
+  mov es, ax
+  mov fs, ax
+  mov gs, ax
+  push 0x23
+  mov eax,esp
+  push eax
+  pushfd
+  pop eax
+  or eax,0x200
+  push eax
+  push 0x1b
+  lea eax, [.temp]
+	push eax
+	iretd
+.temp:
+  add esp, 4
+  leave
+  ret
+
+global tss_load
+tss_load:
+  push ebp
+  mov ebp, esp
+  mov ax, word [ebp + 8]
+  ltr ax
+  leave
+  ret
