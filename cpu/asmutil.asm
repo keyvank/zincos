@@ -84,3 +84,11 @@ tss_load:
   ltr ax
   leave
   ret
+
+global get_esp
+get_esp:
+  push ebp
+  mov ebp, esp
+  lea eax, [esp + 8]
+  leave
+  ret

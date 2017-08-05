@@ -7,3 +7,4 @@ extern "C" void enable_paging();
 extern "C" void load_page_directory(u32_t const * const p_page_directory);
 extern "C" void enter_usermode();
 extern "C" void tss_load(u16_t const p_selector);
+extern "C" u32_t get_esp();

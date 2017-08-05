@@ -55,3 +55,7 @@ void gdt_install() {
   gdt_load(&gdt_reg, KERNEL_CODE_SEGMENT, KERNEL_DATA_SEGMENT);
 	tss_load(TSS_SEGMENT | 0x03);
 }
+
+void tss_set_kernel_stack(u32_t const p_stack) {
+   tss_entry.esp0 = p_stack;
+}

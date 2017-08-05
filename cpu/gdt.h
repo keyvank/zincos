@@ -39,3 +39,4 @@ typedef struct {
 } __attribute__((packed)) tss_entry_t;
 
 void gdt_install();
+void tss_set_kernel_stack(u32_t const p_stack);
