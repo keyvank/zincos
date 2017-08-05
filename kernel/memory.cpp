@@ -1,6 +1,7 @@
 #include "kernel/memory.h"
 #include "kernel/util.h"
 #include "kernel/memory.h"
+#include "drivers/vga.h"
 
 #define BLOCK_SIZE (4096)
 #define BITS_PER_BYTE (8)
@@ -32,8 +33,9 @@ addr_t memory::allocate_blocks(u32_t const p_count) {
       curr_count++;
     else
       curr_count = 0;
-    if(curr_count == p_count) {
-      size_t first = i + 1 - p_count;
+    if(curr_count == p_count + 2 /* 2 free blocks before and after new blocks */) {
+      size_t first = i + 1 - (p_count + 2);
+      first++; /* One free block past used blocks */
       for(size_t j = 0; j < p_count; j++)
         this->mark_block_used(first + j);
       return this->m_data_block_addr + first * BLOCK_SIZE;
@@ -42,25 +44,15 @@ addr_t memory::allocate_blocks(u32_t const p_count) {
   return NULL;
 }
 
-addr_t memory::force_allocate_blocks(u32_t const p_block, u32_t const p_count) {
-  if(p_count == 0) return NULL;
-  u32_t end_block = p_block + p_count;
-  if(p_block < this->m_data_block_count && end_block <= this->m_data_block_count) {
-    for(u32_t i = p_block; i < end_block; i++)
-      this->mark_block_used(i);
-    return this->m_data_block_addr + p_block * BLOCK_SIZE;
-  }
-  else
-    return NULL;
-}
-
-// It doesn't free the block when the address is invalid. Fails silently.
-void memory::free_block(addr_t const p_address) {
+// It doesn't free the blocks when the address is invalid. Fails silently.
+void memory::free_blocks(addr_t const p_address) {
   u32_t offset = reinterpret_cast<u32_t>(reinterpret_cast<u8_t *>(p_address) - reinterpret_cast<u32_t>(this->m_data_block_addr));
   if(offset % BLOCK_SIZE == 0) {
     u32_t block = offset / BLOCK_SIZE;
-    if(block < this->m_data_block_count)
-      this->mark_block_free(block);
+    while(block < this->m_data_block_count && this->is_block_used(block)) {
+        this->mark_block_free(block);
+        block++;
+    }
   }
 }
 
