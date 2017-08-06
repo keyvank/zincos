@@ -10,6 +10,7 @@
 #include "kernel/memory.h"
 #include "cpu/asmutil.h"
 #include "kernel/paging.h"
+#include "kernel/syscall.h"
 #include "cpu/ports.h"
 
 void keyboard_callback(registers_t const p_registers) {
@@ -36,6 +37,15 @@ void page_fault_callback(registers_t const p_registers) {
     kprint("Page fault!\n");
     // Do nothing
 }
+
+void syscall_dispatcher(registers_t const p_registers) {
+    UNUSED(p_registers);
+    kprint("System call!\n");
+    // Do nothing
+}
+
+//void usermode_program();
+int syscall_0(const char *p_string);
 
 kernel::kernel(multiboot_info_t const &p_multiboot_info) : m_memory(get_best_region(p_multiboot_info)), m_page_directory(NULL), m_page_tables(NULL) {
   clear_screen();
@@ -71,9 +81,14 @@ kernel::kernel(multiboot_info_t const &p_multiboot_info) : m_memory(get_best_reg
   init_keyboard(keyboard_callback);
   init_timer(25,timer_callback);
   init_paging(page_fault_callback);
+  init_syscalls();
 	asm volatile("sti");
 
   tss_set_kernel_stack(get_esp());
   enter_usermode();
   kprint("Welcome to Usermode! Notice that all pages are Usermode pages!\n");
+
+  int syscall_result;
+  asm volatile("int $123" : "=a" (syscall_result) : "0" (0), "b" ((int)"Hwllo "));
+  asm volatile("int $123" : "=a" (syscall_result) : "0" (0), "b" ((int)"Userland!\n"));
 }

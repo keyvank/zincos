@@ -25,11 +25,11 @@ typedef struct {
 idt_gate_t idt[IDT_ENTRIES];
 idt_register_t idt_reg;
 
-void set_idt_gate(size_t const p_index, u32_t const p_handler) {
+void set_idt_gate(size_t const p_index, u32_t const p_handler, bool const p_is_usermode) {
     idt[p_index].low_offset = low_16(p_handler);
     idt[p_index].sel = KERNEL_CODE_SEGMENT;
     idt[p_index].always0 = 0;
-    idt[p_index].flags = 0x8E;
+    idt[p_index].flags = 0x8e | (p_is_usermode ? 0x60 : 0x00);
     idt[p_index].high_offset = high_16(p_handler);
 }
 

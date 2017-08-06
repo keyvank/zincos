@@ -108,6 +108,8 @@ global irq13
 global irq14
 global irq15
 
+global isr123
+
 ; 0: Divide By Zero Exception
 isr0:
     cli
@@ -324,6 +326,13 @@ isr31:
     cli
     push byte 0
     push byte 31
+    jmp isr_common_stub
+
+; 123: Syscalls
+isr123:
+    cli
+    push byte 0
+    push byte 123
     jmp isr_common_stub
 
 
