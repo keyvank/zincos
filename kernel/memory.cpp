@@ -33,9 +33,8 @@ addr_t memory::allocate_blocks(u32_t const p_count) {
       curr_count++;
     else
       curr_count = 0;
-    if(curr_count == p_count + 2 /* 2 free blocks before and after new blocks */) {
-      size_t first = i + 1 - (p_count + 2);
-      first++; /* One free block past used blocks */
+    if(curr_count == p_count) {
+      size_t first = i + 1 - p_count;
       for(size_t j = 0; j < p_count; j++)
         this->mark_block_used(first + j);
       return this->m_data_block_addr + first * BLOCK_SIZE;
@@ -44,15 +43,12 @@ addr_t memory::allocate_blocks(u32_t const p_count) {
   return NULL;
 }
 
-// It doesn't free the blocks when the address is invalid. Fails silently.
-void memory::free_blocks(addr_t const p_address) {
+// It doesn't free the block when the address is invalid. Fails silently.
+void memory::free_block(addr_t const p_address) {
   u32_t offset = reinterpret_cast<u32_t>(reinterpret_cast<u8_t *>(p_address) - reinterpret_cast<u32_t>(this->m_data_block_addr));
   if(offset % BLOCK_SIZE == 0) {
     u32_t block = offset / BLOCK_SIZE;
-    while(block < this->m_data_block_count && this->is_block_used(block)) {
-        this->mark_block_free(block);
-        block++;
-    }
+    this->mark_block_free(block);
   }
 }
 

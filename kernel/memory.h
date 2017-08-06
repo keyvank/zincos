@@ -31,8 +31,8 @@ public:
   inline bool is_block_used(u32_t const p_block) const;
 
   addr_t allocate_blocks(u32_t const p_count);
-  void free_blocks(addr_t const p_address);
-  
+  void free_block(addr_t const p_address);
+
 };
 
 inline void memory::mark_block_used(u32_t const p_block) {
