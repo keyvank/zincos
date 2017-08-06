@@ -89,6 +89,6 @@ kernel::kernel(multiboot_info_t const &p_multiboot_info) : m_memory(get_best_reg
   kprint("Welcome to Usermode! Notice that all pages are Usermode pages!\n");
 
   int syscall_result;
-  asm volatile("int $123" : "=a" (syscall_result) : "0" (0), "b" ((int)"Hwllo "));
+  asm volatile("int $123" : "=a" (syscall_result) : "0" (0), "b" ((int)"Hello "));
   asm volatile("int $123" : "=a" (syscall_result) : "0" (0), "b" ((int)"Userland!\n"));
 }
