@@ -6,14 +6,18 @@ LD = i386-elf-ld
 AS = nasm
 EMU = qemu-system-i386
 EMUFLAGS = -m 1024
-C_FILES = $(shell find . -type f -name '*.c')
-CPP_FILES = $(shell find . -type f -name '*.cpp')
-KERNEL_OBJECTS = kernel/entry.o ${CPP_FILES:.cpp=.o } ${C_FILES:.c=.o } cpu/interrupt.o cpu/asmutil.o
+C_FILES = $(shell find . -type f -name '*.c' -not -path "./user/*")
+CPP_FILES = $(shell find . -type f -name '*.cpp' -not -path "./user/*")
+KERNEL_OBJECTS = kernel/entry.o ${CPP_FILES:.cpp=.o } ${C_FILES:.c=.o } cpu/interrupt.o cpu/asmutil.o drivers/diskasm.o
 
-all: ./kernel/kernel.bin ./boot/bootloader.bin ./boot/loader.bin
+all: ./kernel/kernel.bin ./boot/bootloader.bin ./boot/loader.bin ./user/apps.bin
 	dd if=/dev/null of=./kernel/kernel.bin bs=512 count=0 seek=112 # Padding the kernel to 112 (0x70) sectors (56 KB)
-	cat ./boot/bootloader.bin ./boot/loader.bin ./kernel/kernel.bin > os.bin
+	dd if=/dev/null of=./user/apps.bin bs=512 count=0 seek=64 # Padding the apps to 64 sectors
+	cat ./boot/bootloader.bin ./boot/loader.bin ./kernel/kernel.bin ./user/apps.bin > os.bin
 	$(EMU) $(EMUFLAGS) -hda ./os.bin
+
+./user/apps.bin: ./user/entry.o ./user/api.o ./user/hello_world.o
+	$(LD) -o $@ -Ttext 0x400000 --oformat binary $^
 
 ./kernel/kernel.bin: $(KERNEL_OBJECTS)
 	$(LD) -o $@ -T ./kernel/linker.ld $^

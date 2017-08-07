@@ -10,6 +10,7 @@ private:
   page_directory_t *m_page_directory;
   page_table_t *m_page_tables;
 
+  void create_process();
 
 public:
   kernel(multiboot_info_t const &p_multiboot_info);

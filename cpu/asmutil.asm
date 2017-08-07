@@ -61,15 +61,13 @@ enter_usermode:
   mov fs, ax
   mov gs, ax
   push 0x23
-  mov eax,esp
-  push eax
+  push dword [ebp+8]
   pushfd
   pop eax
   or eax,0x200
   push eax
   push 0x1b
-  lea eax, [.temp]
-	push eax
+	push dword [ebp+12]
 	iretd
 .temp:
   add esp, 4
