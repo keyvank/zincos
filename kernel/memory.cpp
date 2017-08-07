@@ -26,9 +26,11 @@ size_t memory::get_block_count() const {
 
 // Returns NULL if there is no free block available
 addr_t memory::allocate_blocks(u32_t const p_count) {
+  static size_t i = 0;
+  if(i == this->m_data_block_count) i = 0;
   if(p_count == 0) return NULL;
   u32_t curr_count = 0;
-  for(size_t i = 0; i < this->m_data_block_count; i++) {
+  for(; i < this->m_data_block_count; i++) {
     if(!this->is_block_used(i))
       curr_count++;
     else
