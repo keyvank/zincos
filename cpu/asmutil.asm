@@ -92,3 +92,8 @@ get_esp:
   lea eax, [esp + 8]
   leave
   ret
+
+global get_eip
+get_eip:
+  pop eax
+  jmp eax
