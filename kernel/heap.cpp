@@ -37,9 +37,10 @@ void heap::all_blocks(){
   heap_header_t *curr_header = reinterpret_cast<heap_header_t *>(this->m_address);
   while(curr_header->magic == HEAP_HEADER_MAGIC){
     kprint(curr_header->size);
-    kprint("\n");
+    kprint(" ");
     curr_header = reinterpret_cast<heap_header_t *>(reinterpret_cast<u8_t *>(curr_header) + sizeof(heap_header_t) + curr_header->size + sizeof(heap_footer_t));
   }
+  kprint("\n");
 }
 
 addr_t heap::allocate(u32_t const p_count) {
