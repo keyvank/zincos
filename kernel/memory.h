@@ -16,6 +16,7 @@ private:
   size_t m_bitmap_block_count;
   u8_t *m_data_block_addr;
   size_t m_data_block_count;
+  size_t m_used_blocks;
 public:
   memory(memory_region const &);
   memory() = delete;
@@ -29,6 +30,8 @@ public:
   inline void mark_block_free(u32_t const p_block);
   inline void mark_block_used(u32_t const p_block);
   inline bool is_block_used(u32_t const p_block) const;
+
+  size_t get_used_blocks();
 
   addr_t allocate_blocks(u32_t const p_count);
   void free_block(addr_t const p_address);

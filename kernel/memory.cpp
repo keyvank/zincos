@@ -6,7 +6,7 @@
 #define BLOCK_SIZE (4096)
 #define BITS_PER_BYTE (8)
 
-memory::memory(memory_region const &p_region) {
+memory::memory(memory_region const &p_region) : m_used_blocks(0) {
   u32_t first = align_right(reinterpret_cast<u32_t>(p_region.base), BLOCK_SIZE);
   u32_t last = align_left(reinterpret_cast<u32_t>(p_region.base) + p_region.size, BLOCK_SIZE);
   u32_t size = last - first;
@@ -39,6 +39,7 @@ addr_t memory::allocate_blocks(u32_t const p_count) {
       size_t first = i + 1 - p_count;
       for(size_t j = 0; j < p_count; j++)
         this->mark_block_used(first + j);
+      this->m_used_blocks += p_count;
       return this->m_data_block_addr + first * BLOCK_SIZE;
     }
   }
@@ -50,6 +51,8 @@ void memory::free_block(addr_t const p_address) {
   u32_t offset = reinterpret_cast<u32_t>(reinterpret_cast<u8_t *>(p_address) - reinterpret_cast<u32_t>(this->m_data_block_addr));
   if(offset % BLOCK_SIZE == 0) {
     u32_t block = offset / BLOCK_SIZE;
+    if(this->is_block_used(block))
+      this->m_used_blocks--;
     this->mark_block_free(block);
   }
 }
@@ -72,4 +75,8 @@ memory_region get_best_region(multiboot_info_t const &p_multiboot_info) {
   }
   else
     return memory_region{0,0};
+}
+
+size_t memory::get_used_blocks() {
+  return this->m_used_blocks;
 }
