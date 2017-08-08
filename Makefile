@@ -17,7 +17,7 @@ all: ./kernel/kernel.bin ./boot/bootloader.bin ./boot/loader.bin ./user/apps.bin
 	$(EMU) $(EMUFLAGS) -hda ./os.bin
 
 ./user/apps.bin: ./user/entry.o ./user/api.o ./user/hello_world.o
-	$(LD) -o $@ -Ttext 0x400000 --oformat binary $^
+	$(LD) -o $@ -Ttext 0x800000 --oformat binary $^
 
 ./kernel/kernel.bin: $(KERNEL_OBJECTS)
 	$(LD) -o $@ -T ./kernel/linker.ld $^

@@ -44,7 +44,4 @@ typedef struct {
 
 void init_paging(isr_t const p_page_fault_handler);
 
-bool create_page_table(page_directory_t *p_directory, u32_t p_virtual, u32_t p_flags, memory &p_memory);
-void map_physical(page_directory_t *p_directory, u32_t p_virtual, u32_t p_physical, u32_t p_flags, memory &p_memory);
-void* get_physical_address(page_directory_t const *p_directory, u32_t p_virtual);
-page_directory_t *create_address_space(memory &p_memory);
+page_table_t *map_physical(page_directory_t *p_directory, page_directory_t *p_template, u32_t p_virtual, u32_t p_physical, u32_t p_flags, memory &p_memory);

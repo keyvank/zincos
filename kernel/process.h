@@ -1,3 +1,5 @@
+#pragma once
+
 #include "cpu/types.h"
 #include "kernel/paging.h"
 
@@ -23,8 +25,11 @@ struct trap_frame_t {
 struct process_t;
 struct thread_t {
    process_t *parent;
-   addr_t initial_stack;
-   addr_t stack_limit;
+
+   addr_t virtual_stack; // Virtual address of stack (Grows downwards)
+   addr_t physical_stack; // Physical address of stack (Grows upwards)
+   size_t stack_size_in_pages;
+
    addr_t kernel_stack;
    u8_t priority;
    int state;

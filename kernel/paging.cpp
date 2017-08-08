@@ -6,35 +6,25 @@ void init_paging(isr_t const p_page_fault_handler) {
   register_interrupt_handler(14, p_page_fault_handler);
 }
 
-bool create_page_table(page_directory_t *p_directory, u32_t p_virtual, u32_t p_flags, memory &p_memory) {
-  if (p_directory->entries[p_virtual >> 22] == 0) {
-		addr_t block = p_memory.allocate_blocks(1);
-		if (!block)
-		  return false;
-    memory_set(reinterpret_cast<u8_t*>(block), 0, 4096);
-	  p_directory->entries[p_virtual >> 22] = ((page_table_entry_t) block) | p_flags;
-		map_physical(p_directory, (u32_t)block, (u32_t)block, p_flags, p_memory);
-  }
-	return true;
+page_table_t *get_table(page_directory_t *p_directory, u32_t p_frame) {
+  return ((page_table_t*) (p_directory->entries[p_frame] & ~0xfff));
 }
 
-void map_physical(page_directory_t *p_directory, u32_t p_virtual, u32_t p_physical, u32_t p_flags, memory &p_memory) {
-  if (p_directory->entries[p_virtual >> 22] == 0)
-    create_page_table(p_directory, p_virtual, p_flags, p_memory);
-  ((u32_t*) (p_directory->entries[p_virtual >> 22] & ~0xfff))[p_virtual << 10 >> 10 >> 12] = p_physical | p_flags;
+void clone_page_table(page_table_t *p_source, page_table_t *p_destination) {
+  memory_copy(reinterpret_cast<u8_t *>(p_source),reinterpret_cast<u8_t *>(p_destination),sizeof(page_table_t));
 }
 
-void* get_physical_address(page_directory_t const *p_directory, u32_t p_virtual) {
-  if (p_directory->entries[p_virtual >> 22] == 0)
-    return 0;
-  return reinterpret_cast<addr_t>(((u32_t*) (p_directory->entries[p_virtual >> 22] & ~0xfff))[p_virtual << 10 >> 10 >> 12]);
-}
-
-page_directory_t *create_address_space(memory &p_memory) {
-  page_directory_t *dir = 0;
-  dir = reinterpret_cast<page_directory_t *>(p_memory.allocate_blocks(1));
-  if (!dir)
-    return 0;
-  memory_set(reinterpret_cast<u8_t *>(dir), 0, sizeof (page_directory_t));
-  return dir;
+// If a Page Table needs to be created, returns it.
+page_table_t *map_physical(page_directory_t *p_directory, page_directory_t *p_template, u32_t p_virtual, u32_t p_physical, u32_t p_flags, memory &p_memory) {
+  u32_t directory_frame = p_virtual >> 22;
+  u32_t table_frame = p_virtual << 10 >> 10 >> 12;
+  page_table_t *clone = NULL;
+  if (p_directory->entries[directory_frame] == p_template->entries[directory_frame]) {
+    clone = reinterpret_cast<page_table_t *>(p_memory.allocate_blocks(1));
+    clone_page_table(get_table(p_template, directory_frame), clone);
+    p_directory->entries[directory_frame] = reinterpret_cast<u32_t>(clone) | p_flags;
+  } else
+    p_directory->entries[directory_frame] |= p_flags;
+  get_table(p_directory, directory_frame)->entries[table_frame] = p_physical | p_flags;
+  return clone;
 }
