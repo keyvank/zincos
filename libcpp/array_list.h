@@ -17,6 +17,7 @@ class array_list : public list<T> {
     array_list(heap &m_heap, size_t const p_size);
     T const &operator[](size_t const p_index) const;
     T &operator[](size_t const p_index);
+    ~array_list();
 
     void add(T const &p_value);
     size_t get_size() const;
@@ -57,4 +58,9 @@ void array_list<T>::add(T const &p_value) {
 template <typename T>
 size_t array_list<T>::get_size() const {
   return this->m_size;
+}
+
+template <typename T>
+array_list<T>::~array_list() {
+  this->m_heap.free(this->m_data);
 }
