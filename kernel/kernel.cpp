@@ -52,8 +52,15 @@ void syscall_dispatcher(registers_t const p_registers) {
 
 process_t proc;
 
-kernel::kernel(multiboot_info_t const &p_multiboot_info) : m_memory(get_best_region(p_multiboot_info)), m_heap(reinterpret_cast<u8_t *>(m_memory.allocate_blocks(KERNEL_HEAP_SIZE_IN_PAGES)), KERNEL_HEAP_SIZE_IN_PAGES * 4096), m_identity_page_directory(NULL), m_identity_page_tables(NULL) {
-  //clear_screen();
+kernel::kernel(multiboot_info_t const &p_multiboot_info) :
+    m_memory(get_best_region(p_multiboot_info)),
+    m_heap(reinterpret_cast<u8_t *>(m_memory.allocate_blocks(KERNEL_HEAP_SIZE_IN_PAGES)), KERNEL_HEAP_SIZE_IN_PAGES * 4096),
+    m_identity_page_directory(NULL),
+    m_identity_page_tables(NULL),
+    m_user_page_directory(NULL),
+    m_user_page_tables(NULL) {
+
+  clear_screen();
 	kprint("We are in the kernel!\nWelcome to ZincOS!\n\n");
 
   if(this->m_memory.get_block_count() == 0) {
@@ -72,7 +79,7 @@ kernel::kernel(multiboot_info_t const &p_multiboot_info) : m_memory(get_best_reg
   this->m_identity_page_tables = reinterpret_cast<page_table_t *>(this->m_memory.allocate_blocks(1024)); // Allocate 1024 blocks for Identity Page Tables
   this->m_user_page_directory = reinterpret_cast<page_directory_t *>(this->m_memory.allocate_blocks(1));
   this->m_user_page_tables = reinterpret_cast<page_table_t *>(this->m_memory.allocate_blocks(1024));
-  if(!this->m_identity_page_directory || !this->m_identity_page_tables || !this->m_user_page_tables) {
+  if(!this->m_identity_page_directory || !this->m_identity_page_tables || !this->m_user_page_directory || !this->m_user_page_tables) {
     kprint("Cannot allocate memory for paging!");
     return;
   }
