@@ -14,6 +14,19 @@ typedef char char_t;
 typedef char_t const *str_t;
 typedef u8_t bool_t;
 
+typedef struct {
+   u32_t esp;
+   u32_t ebp;
+   u32_t eip;
+   u32_t edi;
+   u32_t esi;
+   u32_t eax;
+   u32_t ebx;
+   u32_t ecx;
+   u32_t edx;
+   u32_t flags;
+} __attribute__((packed)) cpu_state_t;
+
 #define true (1)
 #define false (0)
 

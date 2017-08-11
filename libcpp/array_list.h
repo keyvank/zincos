@@ -2,6 +2,7 @@
 
 #include "cpu/types.h"
 #include "kernel/heap.h"
+#include "kernel/util.h"
 #include "libcpp/list.h"
 
 template <typename T>

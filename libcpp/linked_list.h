@@ -2,6 +2,7 @@
 
 #include "cpu/types.h"
 #include "kernel/heap.h"
+#include "kernel/util.h"
 #include "libcpp/list.h"
 
 template <typename T>
@@ -21,6 +22,7 @@ class linked_list : public list<T> {
     ~linked_list();
 
     void add(T const &p_value);
+    void remove(size_t const p_index);
     size_t get_size() const;
 };
 
@@ -44,6 +46,24 @@ T &linked_list<T>::operator[](size_t const p_index) {
     current = current->next;
   return current->value;
 }
+
+template <typename T>
+void linked_list<T>::remove(size_t const p_index) {
+  if(p_index > 0) {
+    node *current = this->m_first;
+    for(size_t i = 0; i < p_index - 1; i++)
+      current = current->next;
+    node *next = current->next->next;
+    this->m_heap.free(current->next);
+    current->next = next;
+  } else {
+    node *next = this->m_first->next;
+    this->m_heap.free(this->m_first);
+    this->m_first = next;
+  }
+  this->m_size--;
+}
+
 
 template <typename T>
 void linked_list<T>::add(T const &p_value) {

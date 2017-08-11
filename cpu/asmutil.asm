@@ -54,6 +54,7 @@ global enter_usermode
 enter_usermode:
   push ebp
   mov ebp, esp
+
   cli
   mov ax, 0x23 ; Usermode Data Selector is 0x20 (GDT entry 3). Also sets RPL to 3
   mov ds, ax
@@ -61,18 +62,18 @@ enter_usermode:
   mov fs, ax
   mov gs, ax
   push 0x23
-  push dword [ebp+8]
-  pushfd
-  pop eax
-  or eax,0x200
-  push eax
+  push dword [ebp+8] ; ESP
+  push dword [ebp+44] ; EFLAGS
   push 0x1b
-	push dword [ebp+12]
+	push dword [ebp+16] ; EIP
+  mov edi, dword [ebp+20] ; EDI
+  mov esi, dword [ebp+24] ; ESI
+  mov eax, dword [ebp+28] ; EAX
+  mov ebx, dword [ebp+32] ; EBX
+  mov ecx, dword [ebp+36] ; ECX
+  mov edx, dword [ebp+40] ; EDX
+  mov ebp, dword [ebp+12] ; EBP
 	iretd
-.temp:
-  add esp, 4
-  leave
-  ret
 
 global tss_load
 tss_load:

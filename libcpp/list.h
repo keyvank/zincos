@@ -9,4 +9,9 @@ class list {
     virtual size_t get_size() const = 0;
     virtual T const &operator[](size_t const p_index) const = 0;
     virtual T &operator[](size_t const p_index) = 0;
+
+    virtual ~list();
 };
+
+template <typename T>
+list<T>::~list() { }
