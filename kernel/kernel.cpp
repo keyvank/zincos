@@ -40,30 +40,31 @@ void operator delete(addr_t const p_address) {
 
 bool userland = false;
 void scheduler(registers_t const p_registers) {
-  UNUSED(p_registers);
-  load_page_directory((u32_t*)krn->m_identity_page_directory);
+  if(krn->m_processes.get_size() > 0) {
+    load_page_directory((u32_t*)krn->m_identity_page_directory);
 
-  if(userland) {
-    thread &thr = (*krn->m_processes[krn->m_process_index]->threads)[0];
-    thr.frame.esp = p_registers.useresp;
-    thr.frame.ebp = p_registers.ebp;
-    thr.frame.eip = p_registers.eip;
-    thr.frame.edi = p_registers.edi;
-    thr.frame.esi = p_registers.esi;
-    thr.frame.eax = p_registers.eax;
-    thr.frame.ebx = p_registers.ebx;
-    thr.frame.ecx = p_registers.ecx;
-    thr.frame.edx = p_registers.edx;
-    thr.frame.flags = p_registers.eflags;
+    if(userland) {
+      thread &thr = (*krn->m_processes[krn->m_process_index]->threads)[0];
+      thr.m_cpu_state.esp = p_registers.useresp;
+      thr.m_cpu_state.ebp = p_registers.ebp;
+      thr.m_cpu_state.eip = p_registers.eip;
+      thr.m_cpu_state.edi = p_registers.edi;
+      thr.m_cpu_state.esi = p_registers.esi;
+      thr.m_cpu_state.eax = p_registers.eax;
+      thr.m_cpu_state.ebx = p_registers.ebx;
+      thr.m_cpu_state.ecx = p_registers.ecx;
+      thr.m_cpu_state.edx = p_registers.edx;
+      thr.m_cpu_state.flags = p_registers.eflags;
+    }
+
+    krn->m_process_index++;
+    if(krn->m_process_index == krn->m_processes.get_size())
+      krn->m_process_index = 0;
+
+    load_page_directory(reinterpret_cast<u32_t *>(krn->m_processes[krn->m_process_index]->m_page_directory));
+    userland = true;
+    enter_usermode((*krn->m_processes[krn->m_process_index]->threads)[0].m_cpu_state);
   }
-
-  krn->m_process_index++;
-  if(krn->m_process_index == krn->m_processes.get_size())
-    krn->m_process_index = 0;
-
-  load_page_directory(reinterpret_cast<u32_t *>(krn->m_processes[krn->m_process_index]->page_directory));
-  userland = true;
-  enter_usermode((*krn->m_processes[krn->m_process_index]->threads)[0].frame);
 }
 
 void page_fault_callback(registers_t const p_registers) {
@@ -149,7 +150,7 @@ kernel::kernel(multiboot_info_t const &p_multiboot_info) :
 }
 
 void kernel::create_process() {
-  process *new_process = new process(this);
+  process *new_process = new process(*this);
   this->m_processes.add(new_process);
 }
 

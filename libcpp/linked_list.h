@@ -23,7 +23,7 @@ class linked_list : public list<T> {
 
     void add(T const &p_value);
     void remove(size_t const p_index);
-    size_t get_size() const;
+    inline size_t get_size() const;
 };
 
 template <typename T>
@@ -83,7 +83,7 @@ void linked_list<T>::add(T const &p_value) {
 }
 
 template <typename T>
-size_t linked_list<T>::get_size() const {
+inline size_t linked_list<T>::get_size() const {
   return this->m_size;
 }
 

@@ -16,8 +16,12 @@ all: ./kernel/kernel.bin ./boot/bootloader.bin ./boot/loader.bin ./user/apps.bin
 	cat ./boot/bootloader.bin ./boot/loader.bin ./kernel/kernel.bin ./user/apps.bin > os.bin
 	$(EMU) $(EMUFLAGS) -hda ./os.bin
 
-./user/apps.bin: ./user/entry.o ./user/api.o ./user/hello_world.o
-	$(LD) -o $@ -Ttext 0x800000 --oformat binary $^
+./user/apps.bin: ./user/entry.o ./user/api.o ./user/hello_world.o ./user/shell.o
+	$(LD) -o ./user/hello_world.bin -Ttext 0x800000 --oformat binary ./user/entry.o ./user/api.o ./user/hello_world.o
+	dd if=/dev/null of=./user/hello_world.bin bs=512 count=0 seek=1 # Padding to 1 sectors
+	$(LD) -o ./user/shell.bin -Ttext 0x800000 --oformat binary ./user/entry.o ./user/api.o ./user/shell.o
+	dd if=/dev/null of=./user/shell.bin bs=512 count=0 seek=1 # Padding to 1 sectors
+	cat ./user/hello_world.bin ./user/shell.bin > ./user/apps.bin
 
 ./kernel/kernel.bin: $(KERNEL_OBJECTS)
 	$(LD) -o $@ -T ./kernel/linker.ld $^

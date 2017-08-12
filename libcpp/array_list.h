@@ -21,7 +21,7 @@ class array_list : public list<T> {
     ~array_list();
 
     void add(T const &p_value);
-    size_t get_size() const;
+    inline size_t get_size() const;
 };
 
 template <typename T>
@@ -57,7 +57,7 @@ void array_list<T>::add(T const &p_value) {
 }
 
 template <typename T>
-size_t array_list<T>::get_size() const {
+inline size_t array_list<T>::get_size() const {
   return this->m_size;
 }
 
