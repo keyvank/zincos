@@ -14,6 +14,7 @@ all: ./kernel/kernel.bin ./boot/bootloader.bin ./boot/loader.bin ./user/apps.bin
 	dd if=/dev/null of=./kernel/kernel.bin bs=512 count=0 seek=112 # Padding the kernel to 112 (0x70) sectors (56 KB)
 	dd if=/dev/null of=./user/apps.bin bs=512 count=0 seek=64 # Padding the apps to 64 sectors
 	cat ./boot/bootloader.bin ./boot/loader.bin ./kernel/kernel.bin ./user/apps.bin > os.bin
+	dd if=/dev/null of=./os.bin bs=1024 count=0 seek=1024 # Padding whole image to 1 MB
 	$(EMU) $(EMUFLAGS) -hda ./os.bin
 
 ./user/apps.bin: ./user/entry.o ./user/api.o ./user/hello_world.o ./user/shell.o
