@@ -28,23 +28,23 @@ void keyboard_callback(registers_t const p_registers) {
     kprint("\n");
 }
 
-kernel *krn;
+static kernel *_kernel;
 addr_t operator new(long unsigned int const p_size) {
-  return krn->m_heap.allocate(p_size);
+  return _kernel->m_heap.allocate(p_size);
 }
 
 void operator delete(addr_t const p_address) {
-  return krn->m_heap.free(p_address);
+  return _kernel->m_heap.free(p_address);
 }
 
 
 bool userland = false;
 void scheduler(registers_t const p_registers) {
-  if(krn->m_processes.get_size() > 0) {
-    load_page_directory((u32_t*)krn->m_identity_page_directory);
+  if(_kernel->m_processes.get_size() > 0) {
+    load_page_directory((u32_t*)_kernel->m_identity_page_directory);
 
     if(userland) {
-      thread &thr = (*krn->m_processes[krn->m_process_index]->threads)[0];
+      thread &thr = (*_kernel->m_processes[_kernel->m_process_index]->threads)[0];
       thr.m_cpu_state.esp = p_registers.useresp;
       thr.m_cpu_state.ebp = p_registers.ebp;
       thr.m_cpu_state.eip = p_registers.eip;
@@ -57,13 +57,13 @@ void scheduler(registers_t const p_registers) {
       thr.m_cpu_state.flags = p_registers.eflags;
     }
 
-    krn->m_process_index++;
-    if(krn->m_process_index == krn->m_processes.get_size())
-      krn->m_process_index = 0;
+    _kernel->m_process_index++;
+    if(_kernel->m_process_index == _kernel->m_processes.get_size())
+      _kernel->m_process_index = 0;
 
-    load_page_directory(reinterpret_cast<u32_t *>(krn->m_processes[krn->m_process_index]->m_page_directory));
+    load_page_directory(reinterpret_cast<u32_t *>(_kernel->m_processes[_kernel->m_process_index]->m_page_directory));
     userland = true;
-    enter_usermode((*krn->m_processes[krn->m_process_index]->threads)[0].m_cpu_state);
+    enter_usermode((*_kernel->m_processes[_kernel->m_process_index]->threads)[0].m_cpu_state);
   }
 }
 
@@ -86,7 +86,7 @@ kernel::kernel(multiboot_info_t const &p_multiboot_info) :
     m_user_page_tables(NULL),
     m_processes(m_heap) {
 
-  krn = this;
+  _kernel = this;
 
   clear_screen();
 	kprint("We are in the kernel!\nWelcome to ZincOS!\n\n");
