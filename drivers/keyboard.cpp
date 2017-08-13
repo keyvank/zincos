@@ -11,192 +11,158 @@ void init_keyboard(isr_t const p_handler) {
    register_interrupt_handler(IRQ1, p_handler);
 }
 
-void print_letter(u8_t scancode) {
-    switch (scancode) {
-        case 0x0:
-            kprint("ERROR");
-            break;
-        case 0x1:
-            kprint("ESC");
-            break;
-        case 0x2:
-            kprint("1");
-            break;
-        case 0x3:
-            kprint("2");
-            break;
-        case 0x4:
-            kprint("3");
-            break;
-        case 0x5:
-            kprint("4");
-            break;
-        case 0x6:
-            kprint("5");
-            break;
-        case 0x7:
-            kprint("6");
-            break;
-        case 0x8:
-            kprint("7");
-            break;
-        case 0x9:
-            kprint("8");
-            break;
-        case 0x0A:
-            kprint("9");
-            break;
-        case 0x0B:
-            kprint("0");
-            break;
-        case 0x0C:
-            kprint("-");
-            break;
-        case 0x0D:
-            kprint("+");
-            break;
-        case 0x0E:
-            kprint("Backspace");
-            break;
-        case 0x0F:
-            kprint("Tab");
-            break;
-        case 0x10:
-            kprint("Q");
-            break;
-        case 0x11:
-            kprint("W");
-            break;
-        case 0x12:
-            kprint("E");
-            break;
-        case 0x13:
-            kprint("R");
-            break;
-        case 0x14:
-            kprint("T");
-            break;
-        case 0x15:
-            kprint("Y");
-            break;
-        case 0x16:
-            kprint("U");
-            break;
-        case 0x17:
-            kprint("I");
-            break;
-        case 0x18:
-            kprint("O");
-            break;
-        case 0x19:
-            kprint("P");
-            break;
-		case 0x1A:
-			kprint("[");
-			break;
-		case 0x1B:
-			kprint("]");
-			break;
-		case 0x1C:
-			kprint("ENTER");
-			break;
-		case 0x1D:
-			kprint("LCtrl");
-			break;
-		case 0x1E:
-			kprint("A");
-			break;
-		case 0x1F:
-			kprint("S");
-			break;
-        case 0x20:
-            kprint("D");
-            break;
-        case 0x21:
-            kprint("F");
-            break;
-        case 0x22:
-            kprint("G");
-            break;
-        case 0x23:
-            kprint("H");
-            break;
-        case 0x24:
-            kprint("J");
-            break;
-        case 0x25:
-            kprint("K");
-            break;
-        case 0x26:
-            kprint("L");
-            break;
-        case 0x27:
-            kprint(";");
-            break;
-        case 0x28:
-            kprint("'");
-            break;
-        case 0x29:
-            kprint("`");
-            break;
-		case 0x2A:
-			kprint("LShift");
-			break;
-		case 0x2B:
-			kprint("\\");
-			break;
-		case 0x2C:
-			kprint("Z");
-			break;
-		case 0x2D:
-			kprint("X");
-			break;
-		case 0x2E:
-			kprint("C");
-			break;
-		case 0x2F:
-			kprint("V");
-			break;
-        case 0x30:
-            kprint("B");
-            break;
-        case 0x31:
-            kprint("N");
-            break;
-        case 0x32:
-            kprint("M");
-            break;
-        case 0x33:
-            kprint(",");
-            break;
-        case 0x34:
-            kprint(".");
-            break;
-        case 0x35:
-            kprint("/");
-            break;
-        case 0x36:
-            kprint("Rshift");
-            break;
-        case 0x37:
-            kprint("Keypad *");
-            break;
-        case 0x38:
-            kprint("LAlt");
-            break;
-        case 0x39:
-            kprint("Spc");
-            break;
-        default:
-            /* 'keuyp' event corresponds to the 'keydown' + 0x80
-             * it may still be a scancode we haven't implemented yet, or
-             * maybe a control/escape sequence */
-            if (scancode <= 0x7f) {
-                kprint("Unknown key down");
-            } else if (scancode <= 0x39 + 0x80) {
-                kprint("key up ");
-                print_letter(scancode - 0x80);
-            } else kprint("Unknown key up");
-            break;
-    }
+
+char to_char(u8_t const p_scancode, bool const p_shift) {
+
+  switch (p_scancode) {
+    case 0x2:
+        return (p_shift?'!':'1');
+    case 0x3:
+        return (p_shift?'@':'2');
+
+    case 0x4:
+        return (p_shift?'#':'3');
+
+    case 0x5:
+        return (p_shift?'$':'4');
+
+    case 0x6:
+        return (p_shift?'%':'5');
+
+    case 0x7:
+        return (p_shift?'^':'6');
+
+    case 0x8:
+        return (p_shift?'&':'7');
+
+    case 0x9:
+        return (p_shift?'*':'8');
+
+    case 0x0A:
+        return (p_shift?'(':'9');
+
+    case 0x0B:
+        return (p_shift?')':'0');
+
+    case 0x0C:
+        return (p_shift?'_':'-');
+
+    case 0x0D:
+        return (p_shift?'+':'=');
+
+    case 0x10:
+        return (p_shift?'Q':'q');
+
+    case 0x11:
+        return (p_shift?'W':'w');
+
+    case 0x12:
+        return (p_shift?'E':'e');
+
+    case 0x13:
+        return (p_shift?'R':'r');
+
+    case 0x14:
+        return (p_shift?'T':'t');
+
+    case 0x15:
+        return (p_shift?'Y':'y');
+
+    case 0x16:
+        return (p_shift?'U':'u');
+
+    case 0x17:
+        return (p_shift?'I':'i');
+
+    case 0x18:
+        return (p_shift?'O':'o');
+
+    case 0x19:
+        return (p_shift?'P':'p');
+
+    case 0x1A:
+      return (p_shift?'{':'[');
+
+    case 0x1B:
+      return (p_shift?'}':']');
+
+    case 0x1E:
+      return (p_shift?'A':'a');
+
+    case 0x1F:
+      return (p_shift?'S':'s');
+
+    case 0x20:
+        return (p_shift?'D':'d');
+
+    case 0x21:
+        return (p_shift?'F':'f');
+
+    case 0x22:
+        return (p_shift?'G':'g');
+
+    case 0x23:
+        return (p_shift?'H':'h');
+
+    case 0x24:
+        return (p_shift?'J':'j');
+
+    case 0x25:
+        return (p_shift?'K':'k');
+
+    case 0x26:
+        return (p_shift?'L':'l');
+
+    case 0x27:
+        return (p_shift?':':';');;
+
+    case 0x28:
+        return (p_shift?'\"':'\'');
+
+    case 0x29:
+        return (p_shift?'~':'`');;
+
+    case 0x2B:
+      return (p_shift?'|':'\\');
+
+    case 0x2C:
+      return (p_shift?'Z':'z');
+
+    case 0x2D:
+      return (p_shift?'X':'x');
+
+    case 0x2E:
+      return (p_shift?'C':'c');
+
+    case 0x2F:
+      return (p_shift?'V':'v');
+
+    case 0x30:
+        return (p_shift?'B':'b');
+
+    case 0x31:
+        return (p_shift?'N':'n');
+
+    case 0x32:
+        return (p_shift?'M':'m');
+
+    case 0x33:
+        return (p_shift?'<':',');
+
+    case 0x34:
+        return (p_shift?'>':'.');
+
+    case 0x35:
+        return (p_shift?'?':'/');
+
+    case 0x39:
+        return ' ';
+
+    default:
+        return 0;
+  }
+}
+
+bool is_up(u8_t const p_scancode) {
+  return p_scancode > 0x39;
 }

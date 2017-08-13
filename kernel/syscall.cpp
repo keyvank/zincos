@@ -2,15 +2,13 @@
 #include "drivers/vga.h"
 #include "kernel/util.h"
 
-extern "C" int syscall_0(const char *str){
-  kprint(str);
-  return 0;
-}
+#define NUM_SYSCALLS (256)
 
-static void *syscalls[1] =
-{
-   (void*)&syscall_0
-};
+static void *syscalls[NUM_SYSCALLS];
+
+void set_syscall(size_t const p_index, void *p_function) {
+  syscalls[p_index] = p_function;
+}
 
 void syscall_handler(registers_t p_registers) {
   UNUSED(p_registers);

@@ -10,7 +10,7 @@
 #define USER_STACK_SIZE_IN_PAGES (2)
 #define USER_EXECUTABLE_IMAGE_SIZE_IN_PAGES (2)
 
-process::process(kernel &p_kernel) : m_kernel(p_kernel) {
+process::process(kernel &p_kernel, terminal *p_terminal) : m_kernel(p_kernel), m_terminal(p_terminal) {
   this->threads = new array_list<thread>(this->m_kernel.m_heap);
   this->m_used_blocks = new array_list<addr_t>(this->m_kernel.m_heap);
   this->id = 1;

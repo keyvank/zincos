@@ -17,3 +17,4 @@ void clear_screen();
 void kprint_at(str_t message, int col, int row);
 void kprint(str_t message);
 void kprint(u32_t p_integer);
+void backspace();

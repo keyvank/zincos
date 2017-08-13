@@ -6,6 +6,7 @@ extern "C" int main() {
   print("This is Userland!!!\n");
   function();
   while(true);
+  exit(123);
   return 0;
 }
 void function(){

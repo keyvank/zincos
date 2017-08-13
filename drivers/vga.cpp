@@ -35,6 +35,13 @@ void kprint(str_t message) {
     kprint_at(message, -1, -1);
 }
 
+void backspace() {
+    u8_t *vidmem = (u8_t *) VIDEO_ADDRESS;
+    size_t offset = get_cursor_offset();
+    vidmem[offset - 2] = ' ';
+    set_cursor_offset(offset - 2);
+}
+
 
 size_t print_char(char_t c, int col, int row, char_t attr) {
     u8_t *vidmem = (u8_t *) VIDEO_ADDRESS;
