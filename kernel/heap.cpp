@@ -33,15 +33,15 @@ heap::heap(u8_t * const p_address, size_t const p_size) : m_address(p_address), 
   first_footer->header = first_header;
 }
 
-void heap::all_blocks(){
-  heap_header_t *curr_header = reinterpret_cast<heap_header_t *>(this->m_address);
-  while(curr_header->magic == HEAP_HEADER_MAGIC){
-    kprint(curr_header->size);
-    kprint(" ");
-    curr_header = reinterpret_cast<heap_header_t *>(reinterpret_cast<u8_t *>(curr_header) + sizeof(heap_header_t) + curr_header->size + sizeof(heap_footer_t));
-  }
-  kprint("\n");
-}
+//void heap::all_blocks(){
+//  heap_header_t *curr_header = reinterpret_cast<heap_header_t *>(this->m_address);
+//  while(curr_header->magic == HEAP_HEADER_MAGIC){
+//    kprint(curr_header->size);
+//    kprint(" ");
+//    curr_header = reinterpret_cast<heap_header_t *>(reinterpret_cast<u8_t *>(curr_header) + sizeof(heap_header_t) + curr_header->size + sizeof(heap_footer_t));
+//  }
+//  kprint("\n");
+//}
 
 addr_t heap::allocate(u32_t const p_count) {
   heap_header_t *curr_header = reinterpret_cast<heap_header_t *>(this->m_address);

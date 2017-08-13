@@ -13,11 +13,14 @@
 class kernel {
   friend class process;
   friend class thread;
+  friend class terminal;
   friend addr_t operator new(long unsigned int const p_size);
   friend void operator delete(addr_t const p_address);
 private:
   memory m_memory;
   heap m_heap;
+  terminal m_terminal;
+  terminal *m_active_terminal;
 
   page_directory_t *m_identity_page_directory;
   page_table_t *m_identity_page_tables;

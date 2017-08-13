@@ -62,64 +62,46 @@ void kernel::page_fault_handler(registers_t const p_registers) {
   UNUSED(p_registers);
   u32_t faulting_address;
   asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
-  kprint("Page fault!\n");
-  kprint(faulting_address);
+  this->m_terminal.write("Page fault!\n");
   while(true);
   // Do nothing
 }
 
-string *cmd;
-bool shift=false;
-bool ctrl=false;
-bool alt=false;
+size_t active_terminal_process_index = 0;
+bool shift = false, ctrl = false, alt = false;
 void kernel::keyboard_handler(registers_t const p_registers) {
-    UNUSED(p_registers);
-    /* The PIC leaves us the scancode in port 0x60 */
-    u8_t scancode = port_byte_in(0x60);
-    bool up = is_up(scancode);
-    scancode = (up?scancode-0x80:scancode);
-    char ch = to_char(scancode,shift);
-    if(!up) {
-      if(scancode == KEY_LEFT_SHIFT || scancode == KEY_RIGHT_SHIFT)
-        shift = true;
-      else if(scancode == KEY_LEFT_ALT)
-        alt = true;
-      else if(scancode == KEY_LEFT_CTRL)
-        ctrl = true;
-      else if(scancode == KEY_BACKSPACE) {
-        if(cmd->get_length() > 0) {
-          cmd->pop_char();
-          backspace();
-        }
-      }
-      else if(scancode == KEY_ENTER) {
-        kprint("\nYou said: ");
-        kprint(cmd->m_data);
-        kprint("\n");
-        cmd->clear();
-      }
-      if(ch) {
-        cmd->put_char(ch);
-        char str[2]={ch,'\0'};
-        kprint(str);
-      } else {
-        if(shift && scancode == KEY_TAB) {
-          kprint("Switch terminal!\n");
-        }
-      }
-    }else{
-      if(scancode == KEY_LEFT_SHIFT || scancode == KEY_RIGHT_SHIFT)
-        shift = false;
-      else if(scancode == KEY_LEFT_ALT)
-        alt = false;
-      else if(scancode == KEY_LEFT_CTRL)
-        ctrl = false;
+  UNUSED(p_registers);
+  u8_t scancode = port_byte_in(0x60);
+  bool up = is_up(scancode);
+  scancode = (up ? scancode - 0x80 : scancode);
+  if(scancode == KEY_LEFT_SHIFT || scancode == KEY_RIGHT_SHIFT)
+    shift = !up;
+  else if(scancode == KEY_LEFT_ALT)
+    alt = !up;
+  else if(scancode == KEY_LEFT_CTRL)
+    ctrl = !up;
+  else {
+    if(!up && shift && scancode == KEY_TAB) {
+      this->m_processes[active_terminal_process_index]->m_terminal->set_inactive();
+      active_terminal_process_index++;
+      if(active_terminal_process_index == this->m_processes.get_size())
+        active_terminal_process_index = 0;
+      this->m_active_terminal = this->m_processes[active_terminal_process_index]->m_terminal;
+      this->m_active_terminal->set_active();
+
+    } else if(this->m_userland) {
+      load_page_directory(reinterpret_cast<u32_t *>(this->m_identity_page_directory));
+      this->m_active_terminal->keyboard_event(scancode, up, ctrl, alt, shift);
+      load_page_directory(reinterpret_cast<u32_t *>(_kernel->m_processes[_kernel->m_process_index]->m_page_directory));
     }
+  }
 }
 
 int kernel::sys_exit(u32_t const p_exit_code) {
-  UNUSED(p_exit_code);
   load_page_directory(reinterpret_cast<u32_t *>(_kernel->m_identity_page_directory));
+  terminal *term = _kernel->m_processes[_kernel->m_process_index]->m_terminal;
+  term->write("\nProcess terminated with exit code: ");
+  term->write(p_exit_code);
   _kernel->terminate_process(_kernel->m_process_index);
   _kernel->task_switch();
   return 0;
@@ -133,6 +115,8 @@ int kernel::sys_write(char_t const * const p_string) {
 kernel::kernel(multiboot_info_t const &p_multiboot_info) :
     m_memory(get_best_region(p_multiboot_info)),
     m_heap(reinterpret_cast<u8_t *>(m_memory.allocate_blocks(KERNEL_HEAP_SIZE_IN_PAGES)), KERNEL_HEAP_SIZE_IN_PAGES * 4096),
+    m_terminal(*this),
+    m_active_terminal(&m_terminal),
     m_identity_page_directory(NULL),
     m_identity_page_tables(NULL),
     m_user_page_directory(NULL),
@@ -143,19 +127,20 @@ kernel::kernel(multiboot_info_t const &p_multiboot_info) :
 
   _kernel = this;
 
-  clear_screen();
-	kprint("We are in the kernel!\nWelcome to ZincOS!\n\n");
+  m_terminal.set_active();
+  m_terminal.clear();
+	this->m_terminal.write("We are in the kernel!\nWelcome to ZincOS!\n\n");
 
   if(this->m_memory.get_block_count() == 0) {
-    kprint("Cannot initialize memory!");
+    this->m_terminal.write("Cannot initialize memory!");
     return;
   }
 
-  kprint(this->m_memory.get_block_count());
-  kprint(" memory blocks initialized!\n");
+  this->m_terminal.write(this->m_memory.get_block_count());
+  this->m_terminal.write(" memory blocks initialized!\n");
 
-  kprint(this->m_heap.get_size());
-  kprint(" bytes of kernel heap initialized!\n");
+  this->m_terminal.write(this->m_heap.get_size());
+  this->m_terminal.write(" bytes of kernel heap initialized!\n");
 
   // Enable Paging by Identity Mapping whole 4GB of memory
   this->m_identity_page_directory = reinterpret_cast<page_directory_t *>(this->m_memory.allocate_blocks(1)); // Allocate a block for Identity Page Directory
@@ -163,7 +148,7 @@ kernel::kernel(multiboot_info_t const &p_multiboot_info) :
   this->m_user_page_directory = reinterpret_cast<page_directory_t *>(this->m_memory.allocate_blocks(1));
   this->m_user_page_tables = reinterpret_cast<page_table_t *>(this->m_memory.allocate_blocks(1024));
   if(!this->m_identity_page_directory || !this->m_identity_page_tables || !this->m_user_page_directory || !this->m_user_page_tables) {
-    kprint("Cannot allocate memory for paging!");
+    this->panic("Cannot allocate memory for paging!");
     return;
   }
   for(size_t i = 0; i < 1024; i++) {
@@ -180,11 +165,10 @@ kernel::kernel(multiboot_info_t const &p_multiboot_info) :
   }
   load_page_directory(reinterpret_cast<u32_t *>(this->m_identity_page_directory));
   enable_paging();
-  kprint("Paging enabled!\n");
+  this->m_terminal.write("Paging enabled!\n");
 
 	gdt_install();
   isr_irq_install();
-  cmd = new string(this->m_heap);
   init_keyboard(_keyboard_handler);
   init_paging(_page_fault_handler);
   init_syscalls();
@@ -192,10 +176,16 @@ kernel::kernel(multiboot_info_t const &p_multiboot_info) :
   set_syscall(1, reinterpret_cast<addr_t>(_sys_write));
 	asm volatile("sti");
 
-  kprint("Loading a process...\n\n");
+  this->m_terminal.write("Loading a process...\n\n");
   create_process();
   create_process();
   create_process();
+
+  active_terminal_process_index = 0;
+  this->m_terminal.set_inactive();
+  this->m_active_terminal = this->m_processes[active_terminal_process_index]->m_terminal;
+  this->m_active_terminal->set_active();
+
   tss_set_kernel_stack(get_esp());
   init_timer(5000, _timer_handler);
 }
@@ -207,12 +197,12 @@ void kernel::create_process() {
 }
 
 void kernel::terminate_process(size_t const p_index) {
-  delete this->m_processes[p_index]->m_terminal;
+  //delete this->m_processes[p_index]->m_terminal;
   delete this->m_processes[p_index];
   this->m_processes.remove(p_index);
 }
 
 void kernel::panic(char_t const * const p_message) {
-  kprint(p_message);
+  this->m_terminal.write(p_message);
   while(true);
 }

@@ -16,6 +16,5 @@ public:
 
   addr_t allocate(u32_t const p_count);
   void free(addr_t const p_address);
-  void all_blocks();
   size_t get_size();
 };
