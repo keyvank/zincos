@@ -104,6 +104,8 @@ void terminal::backspace() {
 void terminal::keyboard_event(u8_t const p_scancode, bool p_is_up, bool const p_is_ctrl, bool const p_is_alt, bool const p_is_shift) {
   UNUSED(p_is_ctrl);
   UNUSED(p_is_alt);
+  if(this->m_process->m_sys_write_count == 0) // Block if program hasn't requested to read.
+    return;
   char ch = to_char(p_scancode, p_is_shift);
   if(!p_is_up) {
     if(p_scancode == KEY_BACKSPACE) {
