@@ -97,7 +97,7 @@ void terminal::backspace() {
     m_cursor_y--;
     m_cursor_x = 79;
   } else m_cursor_x--;
-  set_char_at(this->m_cursor_x, this->m_cursor_y, ' ');
+  write_char_at(this->m_cursor_x, this->m_cursor_y, ' ');
   set_cursor_at(this->m_cursor_x, this->m_cursor_y);
 }
 
