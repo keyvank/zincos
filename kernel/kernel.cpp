@@ -215,8 +215,8 @@ kernel::kernel(multiboot_info_t const &p_multiboot_info) :
 
   this->m_terminal.write("Loading a process...\n\n");
   create_process(reinterpret_cast<addr_t>(1));
-  create_process(reinterpret_cast<addr_t>(1));
-  create_process(reinterpret_cast<addr_t>(1));
+  create_process(reinterpret_cast<addr_t>(2));
+  create_process(reinterpret_cast<addr_t>(3));
   create_process(reinterpret_cast<addr_t>(0));
 
   active_terminal_process_index = 0;

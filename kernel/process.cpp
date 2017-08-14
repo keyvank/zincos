@@ -36,7 +36,7 @@ process::process(kernel &p_kernel, terminal *p_terminal, addr_t const p_program)
 
   addr_t image = this->m_kernel.m_memory.allocate_blocks(USER_EXECUTABLE_IMAGE_SIZE_IN_PAGES);
   if(p_program)
-    read_sectors(APPS_START_SECTOR, 1, reinterpret_cast<u8_t *>(image));
+    read_sectors(APPS_START_SECTOR + reinterpret_cast<u32_t>(p_program) - 1, 1, reinterpret_cast<u8_t *>(image));
   else
     memory_copy(reinterpret_cast<u8_t *>(idle), reinterpret_cast<u8_t *>(image), 4096 * USER_EXECUTABLE_IMAGE_SIZE_IN_PAGES);
   for(size_t i = 0; i < USER_EXECUTABLE_IMAGE_SIZE_IN_PAGES; i++) {
