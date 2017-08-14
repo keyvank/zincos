@@ -45,3 +45,4 @@ typedef struct {
 void init_paging(isr_t const p_page_fault_handler);
 
 page_table_t *map_physical(page_directory_t *p_directory, page_directory_t *p_template, u32_t p_virtual, u32_t p_physical, u32_t p_flags, memory &p_memory);
+u32_t get_physical(page_directory_t *p_directory, u32_t p_virtual);

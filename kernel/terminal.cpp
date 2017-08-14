@@ -4,6 +4,7 @@
 #include "drivers/keyboard.h"
 #include "libcpp/string.h"
 #include "kernel/util.h"
+#include "cpu/asmutil.h"
 
 terminal::terminal(kernel &p_kernel) :
   m_kernel(p_kernel),
@@ -112,10 +113,11 @@ void terminal::keyboard_event(u8_t const p_scancode, bool p_is_up, bool const p_
       }
     }
     else if(p_scancode == KEY_ENTER) {
-      this->write("\nYou said: ");
-      this->write(m_input_buffer->m_data);
       this->write("\n");
-      m_input_buffer->clear();
+      while(this->m_input_buffer->get_length() > 0)
+        this->m_process->m_input_buffer->put_char(this->m_input_buffer->peek_char());
+      this->m_process->m_input_buffer->put_char('\n');
+      this->m_process->flush_input_buffer();
     }
     if(ch) {
       m_input_buffer->put_char(ch);

@@ -28,3 +28,9 @@ page_table_t *map_physical(page_directory_t *p_directory, page_directory_t *p_te
   get_table(p_directory, directory_frame)->entries[table_frame] = p_physical | p_flags;
   return clone;
 }
+
+u32_t get_physical(page_directory_t *p_directory, u32_t p_virtual) {
+  u32_t directory_frame = p_virtual >> 22;
+  u32_t table_frame = p_virtual << 10 >> 10 >> 12;
+  return ((get_table(p_directory, directory_frame)->entries[table_frame]) >> 12 << 12) + (p_virtual << 20 >> 20);
+}

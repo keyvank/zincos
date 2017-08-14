@@ -10,7 +10,9 @@
 #define USER_STACK_SIZE_IN_PAGES (2)
 #define USER_EXECUTABLE_IMAGE_SIZE_IN_PAGES (2)
 
-process::process(kernel &p_kernel, terminal *p_terminal) : m_kernel(p_kernel), m_terminal(p_terminal) {
+void idle() { while(true); }
+
+process::process(kernel &p_kernel, terminal *p_terminal, addr_t const p_program) : m_kernel(p_kernel), m_terminal(p_terminal), m_input_buffer(new string(m_kernel.m_heap)) {
   this->threads = new array_list<thread>(this->m_kernel.m_heap);
   this->m_used_blocks = new array_list<addr_t>(this->m_kernel.m_heap);
   this->id = 1;
@@ -33,7 +35,10 @@ process::process(kernel &p_kernel, terminal *p_terminal) : m_kernel(p_kernel), m
   }
 
   addr_t image = this->m_kernel.m_memory.allocate_blocks(USER_EXECUTABLE_IMAGE_SIZE_IN_PAGES);
-  read_sectors(APPS_START_SECTOR, 1, (u8_t*)image);
+  if(p_program)
+    read_sectors(APPS_START_SECTOR, 1, reinterpret_cast<u8_t *>(image));
+  else
+    memory_copy(reinterpret_cast<u8_t *>(idle), reinterpret_cast<u8_t *>(image), 4096 * USER_EXECUTABLE_IMAGE_SIZE_IN_PAGES);
   for(size_t i = 0; i < USER_EXECUTABLE_IMAGE_SIZE_IN_PAGES; i++) {
     addr_t block = map_physical(this->m_page_directory, this->m_kernel.m_user_page_directory, USER_ENTRY_ADDRESS + 4096 * i, reinterpret_cast<u32_t>(image) + 4096 * i, PAGE_TABLE_ENTRY_PRESENT | PAGE_TABLE_ENTRY_WRITABLE | PAGE_TABLE_ENTRY_USER, this->m_kernel.m_memory);
     this->m_used_blocks->add(reinterpret_cast<addr_t>((reinterpret_cast<u8_t *>(image) + 4096 * i)));
@@ -54,10 +59,21 @@ process::~process() {
     this->m_kernel.m_memory.free_block((*this->m_used_blocks)[i]);
   delete this->m_used_blocks;
   delete this->threads;
+  delete this->m_input_buffer;
 }
 
 thread::~thread() {
   for(size_t j = 0; j < this->m_used_blocks->get_size(); j++)
     this->m_parent->m_kernel.m_memory.free_block((*this->m_used_blocks)[j]);
   delete this->m_used_blocks;
+}
+
+void process::flush_input_buffer() {
+  while(this->m_input_buffer->get_length() > 0 && this->m_sys_write_count > 0) {
+    *this->m_sys_write_buffer = this->m_input_buffer->peek_char();
+    this->m_sys_write_buffer++;
+    this->m_sys_write_count--;
+  }
+  if(this->m_sys_write_count == 0)
+    this->state = process_state_t::process_state_running;
 }

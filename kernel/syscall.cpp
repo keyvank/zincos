@@ -10,10 +10,10 @@ void set_syscall(size_t const p_index, void *p_function) {
   syscalls[p_index] = p_function;
 }
 
-void syscall_handler(registers_t p_registers) {
-  UNUSED(p_registers);
-  UNUSED(syscalls);
+isr_t pre_syscall_handler;
 
+void syscall_handler(registers_t p_registers) {
+  pre_syscall_handler(p_registers);
   void *location = syscalls[p_registers.eax];
 
   int ret;
@@ -34,6 +34,7 @@ void syscall_handler(registers_t p_registers) {
 }
 
 
-void init_syscalls() {
+void init_syscalls(isr_t const p_pre_sycall_handler) {
+  pre_syscall_handler = p_pre_sycall_handler;
   register_interrupt_handler(123, syscall_handler);
 }

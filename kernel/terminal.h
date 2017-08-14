@@ -3,11 +3,13 @@
 #include "cpu/types.h"
 #include "libcpp/string.h"
 class kernel;
+class process;
 
 class terminal {
   friend class kernel;
 private:
   kernel &m_kernel;
+  process *m_process;
   bool m_active;
   u8_t *m_text;
   u8_t *m_colors;

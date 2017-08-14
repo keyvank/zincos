@@ -33,7 +33,7 @@ private:
 
   bool m_userland;
 
-  void create_process();
+  void create_process(addr_t const p_program);
   void task_switch();
   void terminate_process(size_t const p_index);
 
@@ -48,6 +48,8 @@ public:
   void timer_handler(registers_t const p_registers);
   void keyboard_handler(registers_t const p_registers);
   void page_fault_handler(registers_t const p_registers);
+  void sys(registers_t const);
   int sys_exit(u32_t const);
   int sys_write(char_t const * const);
+  int sys_read(char_t * const, size_t const);
 };

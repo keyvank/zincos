@@ -24,6 +24,7 @@ class string {
 
     void put_char(char_t const p_char);
     char_t pop_char();
+    char_t peek_char();
     void clear();
     inline size_t get_length() const;
 };

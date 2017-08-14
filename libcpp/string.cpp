@@ -31,6 +31,13 @@ char_t string::pop_char() {
   return pop;
 }
 
+char_t string::peek_char() {
+  char_t peek = this->m_data[0];
+  memory_copy(reinterpret_cast<u8_t *>(this->m_data) + 1, reinterpret_cast<u8_t *>(this->m_data), this->m_length);
+  this->m_length--;
+  return peek;
+}
+
 void string::clear() {
   this->m_heap.free(this->m_data);
   m_reserved = 1;
