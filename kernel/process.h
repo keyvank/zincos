@@ -11,7 +11,6 @@ enum thread_state_t { thread_state_running, thread_state_ready, thread_state_blo
 
 class process;
 class thread {
-  friend void scheduler(registers_t const p_registers);
   friend process;
   friend kernel;
 private:
@@ -30,7 +29,6 @@ public:
 };
 
 class process {
-  friend void scheduler(registers_t const p_registers);
   friend thread;
   friend kernel;
   friend class terminal;
