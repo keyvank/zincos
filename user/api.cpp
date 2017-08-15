@@ -24,3 +24,10 @@ void read_line(char * const p_buffer) {
     *(curr++) = ch;
   *curr = '\0';
 }
+
+void *alloc_pages(unsigned long int const p_count) {
+  int syscall_result;
+  volatile unsigned long int address = 0;
+  asm volatile("int $123" : "=a" (syscall_result) : "0" (3), "b" ((int)p_count), "c" ((int)&address));
+  return reinterpret_cast<void *>(address);
+}

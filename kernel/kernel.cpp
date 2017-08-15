@@ -25,6 +25,7 @@ extern "C" void _sys(registers_t const p_registers) { _kernel->sys(p_registers);
 extern "C" int _sys_exit(u32_t const p_exit_code) { return _kernel->sys_exit(p_exit_code); }
 extern "C" int _sys_write(char_t const * const p_string){ return _kernel->sys_write(p_string); }
 extern "C" int _sys_read(char_t * const p_buffer, size_t const p_count){ return _kernel->sys_read(p_buffer, p_count); }
+extern "C" int _sys_alloc(size_t const p_count, addr_t * const p_buffer){ return _kernel->sys_alloc(p_count, p_buffer); }
 addr_t operator new(long unsigned int const p_size) { return _kernel->m_heap.allocate(p_size); }
 addr_t operator new[](long unsigned int const p_size) { return _kernel->m_heap.allocate(p_size); }
 void operator delete(addr_t const p_address) { _kernel->m_heap.free(p_address); }
@@ -70,10 +71,16 @@ void kernel::timer_handler(registers_t const p_registers) {
 
 void kernel::page_fault_handler(registers_t const p_registers) {
   UNUSED(p_registers);
+  load_page_directory(reinterpret_cast<u32_t *>(this->m_identity_page_directory));
   u32_t faulting_address;
   asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
-  this->m_terminal.write("Page fault!\n");
-  while(true);
+  if(this->m_userland) {
+    this->m_processes[_kernel->m_process_index]->m_terminal->write("Page fault!");
+    this->terminate_process(_kernel->m_process_index);
+    this->task_switch();
+  }
+  else
+    this->panic("Page fault!\n");
   // Do nothing
 }
 
@@ -152,6 +159,17 @@ int kernel::sys_read(char_t * const p_buffer, size_t const p_count) {
   return 0;
 }
 
+
+#define HEAP_ADDRESS (512 * _MB)
+u32_t heap_address = HEAP_ADDRESS;
+int kernel::sys_alloc(size_t const p_count, addr_t * const p_address) {
+  process *proc = this->m_processes[_kernel->m_process_index];
+  addr_t *physical = reinterpret_cast<addr_t *>(get_physical(proc->m_page_directory, reinterpret_cast<u32_t>(p_address)));
+  *physical = proc->expand_heap(p_count);
+  load_page_directory(reinterpret_cast<u32_t *>(proc->m_page_directory));
+  return 0;
+}
+
 kernel::kernel(multiboot_info_t const &p_multiboot_info) :
     m_memory(get_best_region(p_multiboot_info)),
     m_heap(reinterpret_cast<u8_t *>(m_memory.allocate_blocks(KERNEL_HEAP_SIZE_IN_PAGES)), KERNEL_HEAP_SIZE_IN_PAGES * 4096),
@@ -215,13 +233,14 @@ kernel::kernel(multiboot_info_t const &p_multiboot_info) :
   set_syscall(0, reinterpret_cast<addr_t>(_sys_exit));
   set_syscall(1, reinterpret_cast<addr_t>(_sys_write));
   set_syscall(2, reinterpret_cast<addr_t>(_sys_read));
+  set_syscall(3, reinterpret_cast<addr_t>(_sys_alloc));
 	asm volatile("sti");
 
   this->m_terminal.write("Loading a process...\n\n");
 
   create_process(reinterpret_cast<addr_t>(1));
-  create_process(reinterpret_cast<addr_t>(2));
-  create_process(reinterpret_cast<addr_t>(3));
+  create_process(reinterpret_cast<addr_t>(9));
+  create_process(reinterpret_cast<addr_t>(17));
   create_process(reinterpret_cast<addr_t>(0));
 
   active_terminal_process_index = 0;

@@ -6,6 +6,9 @@ void function();
 extern "C" int main() {
   print("Hello World!\n");
   print("This is Userland!!!\n");
+  char *alloc = reinterpret_cast<char *>(alloc_pages(2));
+  *(alloc + 8191) = 'a';
+
   char cmd[MAX_LENGTH];
   function();
   while(true){

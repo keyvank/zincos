@@ -68,4 +68,5 @@ public:
   int sys_exit(u32_t const);
   int sys_write(char_t const * const);
   int sys_read(char_t * const, size_t const);
+  int sys_alloc(size_t const, addr_t * const);
 };

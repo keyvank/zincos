@@ -19,11 +19,11 @@ all: ./kernel/kernel.bin ./boot/bootloader.bin ./boot/loader.bin ./user/apps.bin
 
 ./user/apps.bin: ./user/entry.o ./user/api.o ./user/hello_world.o ./user/shell.o ./user/progress_bar.o
 	$(LD) -o ./user/hello_world.bin -Ttext 0x800000 --oformat binary ./user/entry.o ./user/api.o ./user/hello_world.o
-	dd if=/dev/null of=./user/hello_world.bin bs=512 count=0 seek=1 # Padding to 1 sectors
+	dd if=/dev/null of=./user/hello_world.bin bs=512 count=0 seek=8 # Padding to 1 sectors
 	$(LD) -o ./user/shell.bin -Ttext 0x800000 --oformat binary ./user/entry.o ./user/api.o ./user/shell.o
-	dd if=/dev/null of=./user/shell.bin bs=512 count=0 seek=1 # Padding to 1 sectors
+	dd if=/dev/null of=./user/shell.bin bs=512 count=0 seek=8 # Padding to 1 sectors
 	$(LD) -o ./user/progress_bar.bin -Ttext 0x800000 --oformat binary ./user/entry.o ./user/api.o ./user/progress_bar.o
-	dd if=/dev/null of=./user/progress_bar.bin bs=512 count=0 seek=1 # Padding to 1 sectors
+	dd if=/dev/null of=./user/progress_bar.bin bs=512 count=0 seek=8 # Padding to 1 sectors
 	cat ./user/hello_world.bin ./user/shell.bin ./user/progress_bar.bin > ./user/apps.bin
 
 ./kernel/kernel.bin: $(KERNEL_OBJECTS)
