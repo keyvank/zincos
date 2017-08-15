@@ -12,7 +12,7 @@
 
 void idle() { while(true); }
 
-process::process(kernel &p_kernel, terminal *p_terminal, addr_t const p_program) : m_kernel(p_kernel), m_terminal(p_terminal), m_input_buffer(new string(m_kernel.m_heap)), m_sys_write_buffer(nullptr), m_sys_write_count(0) {
+process::process(kernel &p_kernel, terminal *p_terminal, addr_t const p_program) : m_kernel(p_kernel), m_terminal(p_terminal), m_input_buffer(new string(m_kernel.m_heap)), m_sys_read_buffer(nullptr), m_sys_read_count(0) {
   this->threads = new array_list<thread>(this->m_kernel.m_heap);
   this->m_used_blocks = new array_list<addr_t>(this->m_kernel.m_heap);
   this->id = 1;
@@ -69,11 +69,11 @@ thread::~thread() {
 }
 
 void process::flush_input_buffer() {
-  while(this->m_input_buffer->get_length() > 0 && this->m_sys_write_count > 0) {
-    *this->m_sys_write_buffer = this->m_input_buffer->peek_char();
-    this->m_sys_write_buffer++;
-    this->m_sys_write_count--;
+  while(this->m_input_buffer->get_length() > 0 && this->m_sys_read_count > 0) {
+    *this->m_sys_read_buffer = this->m_input_buffer->peek_char();
+    this->m_sys_read_buffer++;
+    this->m_sys_read_count--;
   }
-  if(this->m_sys_write_count == 0)
+  if(this->m_sys_read_count == 0)
     this->state = process_state_t::process_state_running;
 }

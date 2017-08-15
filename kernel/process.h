@@ -41,8 +41,8 @@ private:
   terminal *m_terminal;
 
   string *m_input_buffer;
-  char_t *m_sys_write_buffer;
-  size_t m_sys_write_count;
+  char_t *m_sys_read_buffer;
+  size_t m_sys_read_count;
   void flush_input_buffer();
 
 public:

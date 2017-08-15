@@ -141,8 +141,8 @@ int kernel::sys_write(char_t const * const p_string) {
 int kernel::sys_read(char_t * const p_buffer, size_t const p_count) {
   page_directory_t *process_directory = this->m_processes[_kernel->m_process_index]->m_page_directory;
   process *proc = this->m_processes[_kernel->m_process_index];
-  proc->m_sys_write_buffer = reinterpret_cast<char_t *>(get_physical(process_directory, reinterpret_cast<u32_t>(p_buffer)));
-  proc->m_sys_write_count = p_count;
+  proc->m_sys_read_buffer = reinterpret_cast<char_t *>(get_physical(process_directory, reinterpret_cast<u32_t>(p_buffer)));
+  proc->m_sys_read_count = p_count;
   proc->state = process_state_t::process_state_blocked;
   proc->flush_input_buffer();
   _kernel->task_switch();
