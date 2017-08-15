@@ -6,13 +6,11 @@
 
 class string {
   private:
-    heap &m_heap;
-
     size_t m_length;
     size_t m_reserved;
   public:
     char_t *m_data;
-    string(heap &m_heap);
+    string();
     string(const string &) = delete;
     string(string &&) = delete;
     string &operator=(const string &) = delete;

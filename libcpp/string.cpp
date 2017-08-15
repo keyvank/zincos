@@ -1,7 +1,7 @@
 #include "libcpp/string.h"
 
-string::string(heap &p_heap) : m_heap(p_heap), m_length(0), m_reserved(1), m_data(nullptr) {
-  m_data = reinterpret_cast<char_t *>(m_heap.allocate(sizeof(char_t) * m_reserved));
+string::string() : m_length(0), m_reserved(1), m_data(nullptr) {
+  m_data = new char_t[m_reserved];
   m_data[0] = '\0';
 }
 
@@ -17,10 +17,10 @@ void string::put_char(char_t const p_char) {
   this->m_data[this->m_length++] = p_char;
   if(this->m_length >= this->m_reserved) {
     this->m_reserved *= 2;
-    addr_t new_location = this->m_heap.allocate(this->m_reserved * sizeof(char_t));
+    char_t *new_location = new char_t[m_reserved];
     memory_copy(reinterpret_cast<u8_t *>(this->m_data), reinterpret_cast<u8_t *>(new_location), sizeof(char_t) * this->m_length);
-    this->m_heap.free(this->m_data);
-    this->m_data = reinterpret_cast<char_t *>(new_location);
+    delete[] this->m_data;
+    this->m_data = new_location;
   }
   this->m_data[this->m_length] = '\0';
 }
@@ -39,13 +39,13 @@ char_t string::peek_char() {
 }
 
 void string::clear() {
-  this->m_heap.free(this->m_data);
+  delete[] this->m_data;
   m_reserved = 1;
   m_length = 0;
-  m_data = reinterpret_cast<char_t *>(m_heap.allocate(sizeof(char_t) * m_reserved));
+  m_data = new char_t[m_reserved];
   m_data[0] = '\0';
 }
 
 string::~string() {
-  this->m_heap.free(this->m_data);
+  delete[] this->m_data;
 }

@@ -12,25 +12,25 @@
 
 void idle() { while(true); }
 
-process::process(kernel &p_kernel, terminal *p_terminal, addr_t const p_program) : m_kernel(p_kernel), m_terminal(p_terminal), m_input_buffer(new string(m_kernel.m_heap)), m_sys_read_buffer(nullptr), m_sys_read_count(0) {
-  this->threads = new array_list<thread>(this->m_kernel.m_heap);
-  this->m_used_blocks = new array_list<addr_t>(this->m_kernel.m_heap);
+process::process(kernel &p_kernel, terminal *p_terminal, addr_t const p_program) : m_kernel(p_kernel), m_terminal(p_terminal), m_input_buffer(new string()), m_sys_read_buffer(nullptr), m_sys_read_count(0) {
+  this->threads = new array_list<thread *>();
+  this->m_used_blocks = new array_list<addr_t>();
   this->id = 1;
   this->m_page_directory = reinterpret_cast<page_directory_t *>(this->m_kernel.m_memory.allocate_blocks(1));
   memory_copy(reinterpret_cast<u8_t *>(this->m_kernel.m_user_page_directory),reinterpret_cast<u8_t *>(this->m_page_directory),sizeof(page_directory_t));
   this->state = process_state_t::process_state_running;
 
-  thread main_thread;
-  main_thread.m_used_blocks = new array_list<addr_t>(this->m_kernel.m_heap);
-  main_thread.m_parent = this;
-  main_thread.state = thread_state_t::thread_state_running;
+  thread *main_thread = new thread;
+  main_thread->m_used_blocks = new array_list<addr_t>();
+  main_thread->m_parent = this;
+  main_thread->state = thread_state_t::thread_state_running;
 
   addr_t stack = this->m_kernel.m_memory.allocate_blocks(USER_STACK_SIZE_IN_PAGES);
-  main_thread.m_stack = (addr_t)USER_STACK_ADDRESS;
+  main_thread->m_stack = (addr_t)USER_STACK_ADDRESS;
   for(size_t i = 0; i < USER_STACK_SIZE_IN_PAGES; i++) {
     // map_physical returns the corresponding block address if a new page table should be created!
     this->m_used_blocks->add(reinterpret_cast<addr_t>((reinterpret_cast<u8_t *>(stack) + 4096 * i)));
-    addr_t block = map_physical(this->m_page_directory, this->m_kernel.m_user_page_directory, reinterpret_cast<u32_t>((u8_t*)main_thread.m_stack - (i + 1) * 4096), reinterpret_cast<u32_t>(stack) + 4096 * i, PAGE_TABLE_ENTRY_PRESENT | PAGE_TABLE_ENTRY_WRITABLE | PAGE_TABLE_ENTRY_USER, this->m_kernel.m_memory);
+    addr_t block = map_physical(this->m_page_directory, this->m_kernel.m_user_page_directory, reinterpret_cast<u32_t>((u8_t*)main_thread->m_stack - (i + 1) * 4096), reinterpret_cast<u32_t>(stack) + 4096 * i, PAGE_TABLE_ENTRY_PRESENT | PAGE_TABLE_ENTRY_WRITABLE | PAGE_TABLE_ENTRY_USER, this->m_kernel.m_memory);
     if(block) this->m_used_blocks->add(block);
   }
 
@@ -45,11 +45,11 @@ process::process(kernel &p_kernel, terminal *p_terminal, addr_t const p_program)
     if(block) this->m_used_blocks->add(block);
   }
 
-  memory_set(reinterpret_cast<u8_t *>(&main_thread.m_cpu_state), 0, sizeof (cpu_state_t));
-  main_thread.m_cpu_state.esp = reinterpret_cast<u32_t>(main_thread.m_stack);
-  main_thread.m_cpu_state.ebp = main_thread.m_cpu_state.esp;
-  main_thread.m_cpu_state.eip = USER_ENTRY_ADDRESS;
-  main_thread.m_cpu_state.flags = 0x200; // Interrupt flag set
+  memory_set(reinterpret_cast<u8_t *>(&main_thread->m_cpu_state), 0, sizeof (cpu_state_t));
+  main_thread->m_cpu_state.esp = reinterpret_cast<u32_t>(main_thread->m_stack);
+  main_thread->m_cpu_state.ebp = main_thread->m_cpu_state.esp;
+  main_thread->m_cpu_state.eip = USER_ENTRY_ADDRESS;
+  main_thread->m_cpu_state.flags = 0x200; // Interrupt flag set
   this->threads->add(main_thread);
 }
 

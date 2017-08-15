@@ -9,10 +9,10 @@
 terminal::terminal(kernel &p_kernel) :
   m_kernel(p_kernel),
   m_active(false),
-  m_text(reinterpret_cast<u8_t *>(m_kernel.m_heap.allocate(sizeof(u8_t) * 80 * 25))),
-  m_colors(reinterpret_cast<u8_t *>(m_kernel.m_heap.allocate(sizeof(u8_t) * 80 * 25))),
+  m_text(new u8_t[80 * 25]),
+  m_colors(new u8_t[80 * 25]),
   m_cursor_x(0), m_cursor_y(0),
-  m_input_buffer(new string(m_kernel.m_heap)) {
+  m_input_buffer(new string()) {
 
   this->clear();
 }
@@ -86,8 +86,8 @@ void terminal::set_inactive() {
 }
 
 terminal::~terminal() {
-  this->m_kernel.m_heap.free(this->m_text);
-  this->m_kernel.m_heap.free(this->m_colors);
+  delete[] this->m_text;
+  delete[] this->m_colors;
   delete this->m_input_buffer;
 }
 

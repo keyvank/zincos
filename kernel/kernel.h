@@ -10,6 +10,17 @@
 
 #define KERNEL_HEAP_SIZE_IN_PAGES (32 * _MB / 4096)
 
+class kernel;
+
+extern kernel *_kernel;
+
+class _new_delete_initializer {
+public:
+  _new_delete_initializer(kernel * const p_kernel) {
+    _kernel = p_kernel;
+  }
+};
+
 class kernel {
   friend class process;
   friend class thread;
@@ -18,9 +29,12 @@ class kernel {
   friend addr_t operator new[](long unsigned int const p_size);
   friend void operator delete(addr_t const p_address);
   friend void operator delete[](addr_t const p_address);
+  friend void debug(char_t const * const p_string);
+  friend void debug(u32_t const p_integer);
 private:
   memory m_memory;
   heap m_heap;
+  _new_delete_initializer m_new_delete_initializer;
   terminal m_terminal;
   terminal *m_active_terminal;
 

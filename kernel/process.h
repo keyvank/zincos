@@ -49,7 +49,7 @@ public:
 
   u32_t id;
   process_state_t state;
-  array_list<thread> *threads;
+  array_list<thread *> *threads;
 
   process(kernel &p_kernel, terminal *p_terminal, addr_t const p_program);
   process(process const &) = delete;

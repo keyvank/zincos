@@ -12,11 +12,10 @@ class linked_list : public list<T> {
         T value;
         node *next;
     };
-    heap &m_heap;
     node *m_first;
     size_t m_size;
   public:
-    linked_list(heap &m_heap);
+    linked_list();
     T const &operator[](size_t const p_index) const;
     T &operator[](size_t const p_index);
     ~linked_list();
@@ -27,7 +26,7 @@ class linked_list : public list<T> {
 };
 
 template <typename T>
-linked_list<T>::linked_list(heap &p_heap) : m_heap(p_heap), m_first(NULL), m_size(0) {
+linked_list<T>::linked_list() : m_first(NULL), m_size(0) {
 
 }
 
@@ -54,11 +53,11 @@ void linked_list<T>::remove(size_t const p_index) {
     for(size_t i = 0; i < p_index - 1; i++)
       current = current->next;
     node *next = current->next->next;
-    this->m_heap.free(current->next);
+    delete current->next;
     current->next = next;
   } else {
     node *next = this->m_first->next;
-    this->m_heap.free(this->m_first);
+    delete this->m_first;
     this->m_first = next;
   }
   this->m_size--;
@@ -68,14 +67,14 @@ void linked_list<T>::remove(size_t const p_index) {
 template <typename T>
 void linked_list<T>::add(T const &p_value) {
   if(this->m_first == NULL) {
-    this->m_first = reinterpret_cast<node *>(this->m_heap.allocate(sizeof(node)));
+    this->m_first = new node;
     this->m_first->value = p_value;
     this->m_first->next = NULL;
   } else {
     node *current = this->m_first;
     while(current->next)
       current = current->next;
-    current->next = reinterpret_cast<node *>(this->m_heap.allocate(sizeof(node)));
+    current->next = new node;
     current->next->value = p_value;
     current->next->next = NULL;
   }
@@ -94,6 +93,6 @@ linked_list<T>::~linked_list() {
   while(current) {
     temp = current;
     current = current->next;
-    this->m_heap.free(temp);
+    delete temp;
   }
 }
