@@ -15,7 +15,9 @@ class kernel {
   friend class thread;
   friend class terminal;
   friend addr_t operator new(long unsigned int const p_size);
+  friend addr_t operator new[](long unsigned int const p_size);
   friend void operator delete(addr_t const p_address);
+  friend void operator delete[](addr_t const p_address);
 private:
   memory m_memory;
   heap m_heap;

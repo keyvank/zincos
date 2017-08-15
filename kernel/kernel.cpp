@@ -26,7 +26,9 @@ extern "C" int _sys_exit(u32_t const p_exit_code) { return _kernel->sys_exit(p_e
 extern "C" int _sys_write(char_t const * const p_string){ return _kernel->sys_write(p_string); }
 extern "C" int _sys_read(char_t * const p_buffer, size_t const p_count){ return _kernel->sys_read(p_buffer, p_count); }
 addr_t operator new(long unsigned int const p_size) { return _kernel->m_heap.allocate(p_size); }
+addr_t operator new[](long unsigned int const p_size) { return _kernel->m_heap.allocate(p_size); }
 void operator delete(addr_t const p_address) { return _kernel->m_heap.free(p_address); }
+void operator delete[](addr_t const p_address) { return _kernel->m_heap.free(p_address); }
 
 void kernel::task_switch() {
   if(_kernel->m_processes.get_size() > 0 ) {
