@@ -14,13 +14,13 @@ class thread {
   friend process;
   friend kernel;
 private:
-  process *m_parent;
+  process &m_parent;
   addr_t m_stack; // Virtual address of stack (Grows downwards)
   array_list<addr_t> *m_used_blocks;
   cpu_state_t m_cpu_state;
   thread_state_t state;
 public:
-  thread() = default;
+  thread(process &p_parent);
   thread(thread const &) = default;
   thread(thread &&) = delete;
   thread &operator=(thread const &) = default;

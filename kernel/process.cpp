@@ -20,9 +20,7 @@ process::process(kernel &p_kernel, terminal *p_terminal, addr_t const p_program)
   memory_copy(reinterpret_cast<u8_t *>(this->m_kernel.m_user_page_directory),reinterpret_cast<u8_t *>(this->m_page_directory),sizeof(page_directory_t));
   this->state = process_state_t::process_state_running;
 
-  thread *main_thread = new thread;
-  main_thread->m_used_blocks = new array_list<addr_t>();
-  main_thread->m_parent = this;
+  thread *main_thread = new thread(*this);
   main_thread->state = thread_state_t::thread_state_running;
 
   addr_t stack = this->m_kernel.m_memory.allocate_blocks(USER_STACK_SIZE_IN_PAGES);
@@ -62,9 +60,15 @@ process::~process() {
   delete this->m_input_buffer;
 }
 
+thread::thread(process &p_parent) :
+    m_parent(p_parent),
+    m_used_blocks(new array_list<addr_t>()) {
+
+}
+
 thread::~thread() {
   for(size_t j = 0; j < this->m_used_blocks->get_size(); j++)
-    this->m_parent->m_kernel.m_memory.free_block((*this->m_used_blocks)[j]);
+    this->m_parent.m_kernel.m_memory.free_block((*this->m_used_blocks)[j]);
   delete this->m_used_blocks;
 }
 
