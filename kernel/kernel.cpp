@@ -47,14 +47,14 @@ void kernel::task_switch() {
     load_page_directory(reinterpret_cast<u32_t *>(_kernel->m_processes[_kernel->m_process_index]->m_page_directory));
 
     this->m_userland = true;
-    enter_usermode((*_kernel->m_processes[_kernel->m_process_index]->threads)[0]->m_cpu_state);
+    enter_usermode(_kernel->m_processes[_kernel->m_process_index]->threads[0]->m_cpu_state);
   } else this->panic("No process to run!");
 }
 
 void kernel::timer_handler(registers_t const p_registers) {
   load_page_directory((u32_t*)this->m_identity_page_directory);
   if(this->m_userland) {
-    thread *thr = (*this->m_processes[_kernel->m_process_index]->threads)[0];
+    thread *thr = this->m_processes[_kernel->m_process_index]->threads[0];
     thr->m_cpu_state.esp = p_registers.useresp;
     thr->m_cpu_state.ebp = p_registers.ebp;
     thr->m_cpu_state.eip = p_registers.eip;
@@ -118,7 +118,7 @@ void kernel::keyboard_handler(registers_t const p_registers) {
 
 void kernel::sys(registers_t const p_registers) {
   load_page_directory(reinterpret_cast<u32_t *>(_kernel->m_identity_page_directory));
-  thread *thr = (*this->m_processes[_kernel->m_process_index]->threads)[0];
+  thread *thr = this->m_processes[_kernel->m_process_index]->threads[0];
   thr->m_cpu_state.esp = p_registers.useresp;
   thr->m_cpu_state.ebp = p_registers.ebp;
   thr->m_cpu_state.eip = p_registers.eip;

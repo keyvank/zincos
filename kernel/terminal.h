@@ -15,7 +15,7 @@ private:
   u8_t *m_colors;
   size_t m_cursor_x;
   size_t m_cursor_y;
-  string *m_input_buffer;
+  string m_input_buffer;
   void backspace();
   void keyboard_event(u8_t const p_scancode, bool const p_is_up, bool const p_is_ctrl, bool const p_is_alt, bool const p_is_shift);
 public:

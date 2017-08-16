@@ -12,7 +12,7 @@ terminal::terminal(kernel &p_kernel) :
   m_text(new u8_t[80 * 25]),
   m_colors(new u8_t[80 * 25]),
   m_cursor_x(0), m_cursor_y(0),
-  m_input_buffer(new string()) {
+  m_input_buffer() {
 
   this->clear();
 }
@@ -88,7 +88,6 @@ void terminal::set_inactive() {
 terminal::~terminal() {
   delete[] this->m_text;
   delete[] this->m_colors;
-  delete this->m_input_buffer;
 }
 
 
@@ -109,20 +108,20 @@ void terminal::keyboard_event(u8_t const p_scancode, bool p_is_up, bool const p_
   char ch = to_char(p_scancode, p_is_shift);
   if(!p_is_up) {
     if(p_scancode == KEY_BACKSPACE) {
-      if(m_input_buffer->get_length() > 0) {
-        m_input_buffer->pop_char();
+      if(m_input_buffer.get_length() > 0) {
+        m_input_buffer.pop_char();
         this->backspace();
       }
     }
     else if(p_scancode == KEY_ENTER) {
       this->write("\n");
-      while(this->m_input_buffer->get_length() > 0)
-        this->m_process->m_input_buffer->put_char(this->m_input_buffer->peek_char());
-      this->m_process->m_input_buffer->put_char('\n');
+      while(this->m_input_buffer.get_length() > 0)
+        this->m_process->m_input_buffer.put_char(this->m_input_buffer.peek_char());
+      this->m_process->m_input_buffer.put_char('\n');
       this->m_process->flush_input_buffer();
     }
     if(ch) {
-      m_input_buffer->put_char(ch);
+      this->m_input_buffer.put_char(ch);
       char str[2]={ch,'\0'};
       this->write(str);
     }
