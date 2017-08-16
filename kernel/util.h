@@ -18,3 +18,5 @@ u32_t glue(u16_t const p_low, u16_t const p_high);
 u32_t align_left(u32_t const p_a, u32_t const p_b);
 u32_t align_right(u32_t const p_a, u32_t const p_b);
 u32_t div_ceil(u32_t const p_a, u32_t const p_b);
+void debug(char_t const * const p_string);
+void debug(u32_t const p_integer);
