@@ -171,6 +171,7 @@ kernel::kernel(multiboot_info_t const &p_multiboot_info) :
     m_memory(get_best_region(p_multiboot_info)),
     m_heap(reinterpret_cast<u8_t *>(m_memory.allocate_blocks(KERNEL_HEAP_SIZE_IN_PAGES)), KERNEL_HEAP_SIZE_IN_PAGES * 4096),
     m_new_delete_initializer(this),
+    m_vfs(),
     m_terminal(*this),
     m_active_terminal(&m_terminal),
     m_identity_page_directory(NULL),

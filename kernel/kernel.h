@@ -6,6 +6,7 @@
 #include "kernel/heap.h"
 #include "kernel/process.h"
 #include "kernel/terminal.h"
+#include "kernel/vfs.h"
 #include "libcpp/linked_list.h"
 
 #define KERNEL_HEAP_SIZE_IN_PAGES (32 * _MB / 4096)
@@ -35,6 +36,7 @@ private:
   memory m_memory;
   heap m_heap;
   _new_delete_initializer m_new_delete_initializer;
+  vfs m_vfs;
   terminal m_terminal;
   terminal *m_active_terminal;
 
