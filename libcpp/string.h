@@ -1,8 +1,6 @@
 #pragma once
 
 #include "cpu/types.h"
-#include "kernel/heap.h"
-#include "kernel/util.h"
 
 class string {
   private:
@@ -11,10 +9,12 @@ class string {
   public:
     char_t *m_data;
     string();
-    string(const string &) = delete;
-    string(string &&) = delete;
-    string &operator=(const string &) = delete;
-    string &operator=(string &&) = delete;
+    string(char_t const * const p_string);
+    string(const string &);
+    string(string &&);
+    string &operator=(const string &);
+    string &operator=(string &&);
+    string &operator=(char_t const * const p_string);
     ~string();
 
     char_t const &operator[](size_t const p_index) const;

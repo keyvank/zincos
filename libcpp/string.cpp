@@ -1,8 +1,9 @@
 #include "libcpp/string.h"
+#include "kernel/util.h"
 
 string::string() : m_length(0), m_reserved(1), m_data(nullptr) {
-  m_data = new char_t[m_reserved];
-  m_data[0] = '\0';
+  this->m_data = new char_t[this->m_reserved];
+  this->m_data[this->m_length] = '\0';
 }
 
 char_t const &string::operator[](size_t const p_index) const {
@@ -40,12 +41,56 @@ char_t string::peek_char() {
 
 void string::clear() {
   delete[] this->m_data;
-  m_reserved = 1;
-  m_length = 0;
-  m_data = new char_t[m_reserved];
-  m_data[0] = '\0';
+  this->m_reserved = 1;
+  this->m_length = 0;
+  this->m_data = new char_t[this->m_reserved];
+  this->m_data[this->m_length] = '\0';
 }
 
 string::~string() {
   delete[] this->m_data;
+}
+
+string::string(const string &p_string) : m_length(p_string.m_length), m_reserved(p_string.m_length + 1), m_data(nullptr) {
+  this->m_data = new char_t[m_reserved];
+  memory_copy(reinterpret_cast<u8_t *>(p_string.m_data), reinterpret_cast<u8_t *>(this->m_data), sizeof(char_t) * p_string.m_length);
+  this->m_data[this->m_length] = '\0';
+}
+string::string(string &&p_string) : m_length(p_string.m_length), m_reserved(p_string.m_reserved), m_data(p_string.m_data) {
+  p_string.m_data = nullptr;
+}
+string &string::operator=(const string &p_string) {
+  delete[] this->m_data;
+  this->m_length = p_string.m_length;
+  this->m_reserved = p_string.m_length + 1;
+  this->m_data = new char_t[m_reserved];
+  memory_copy(reinterpret_cast<u8_t *>(p_string.m_data), reinterpret_cast<u8_t *>(this->m_data), sizeof(char_t) * p_string.m_length);
+  this->m_data[this->m_length] = '\0';
+  return *this;
+}
+string &string::operator=(string &&p_string) {
+  delete[] this->m_data;
+  this->m_length = p_string.m_length;
+  this->m_reserved = p_string.m_reserved;
+  this->m_data = p_string.m_data;
+  p_string.m_data = nullptr;
+  return *this;
+}
+
+string::string(char_t const * const p_string) : string() {
+  char_t const * curr = p_string;
+  while(*curr) {
+    this->put_char(*curr);
+    curr++;
+  }
+}
+
+string &string::operator=(char_t const * const p_string) {
+  this->clear();
+  char_t const * curr = p_string;
+  while(*curr) {
+    this->put_char(*curr);
+    curr++;
+  }
+  return *this;
 }
