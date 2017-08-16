@@ -159,9 +159,6 @@ int kernel::sys_read(char_t * const p_buffer, size_t const p_count) {
   return 0;
 }
 
-
-#define HEAP_ADDRESS (512 * _MB)
-u32_t heap_address = HEAP_ADDRESS;
 int kernel::sys_alloc(size_t const p_count, addr_t * const p_address) {
   process *proc = this->m_processes[_kernel->m_process_index];
   addr_t *physical = reinterpret_cast<addr_t *>(get_physical(proc->m_page_directory, reinterpret_cast<u32_t>(p_address)));
