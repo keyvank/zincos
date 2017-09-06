@@ -19,6 +19,9 @@ class array_list : public list<T> {
     T &operator[](size_t const p_index);
     ~array_list();
     void add(T const &p_value);
+    bool contains(T const &p_value) const;
+    s32_t find(T const &p_value) const;
+    void remove(size_t const p_index);
     inline size_t get_size() const;
 };
 
@@ -58,6 +61,32 @@ void array_list<T>::add(T const &p_value) {
 template <typename T>
 inline size_t array_list<T>::get_size() const {
   return this->m_size;
+}
+
+template <typename T>
+bool array_list<T>::contains(T const &p_value) const {
+  for(size_t i = 0; i < this->get_size(); i++) {
+    if((*this)[i] == p_value) return true;
+  }
+  return false;
+}
+
+// Returns -1 when not found
+template <typename T>
+s32_t array_list<T>::find(T const &p_value) const {
+  for(size_t i = 0; i < this->get_size(); i++) {
+    if((*this)[i] == p_value) return i;
+  }
+  return -1;
+}
+
+// Fails silently
+template <typename T>
+void array_list<T>::remove(size_t const p_index) {
+  if(p_index < this->m_size) {
+    memory_copy(reinterpret_cast<u8_t *>(this->m_data + p_index + 1), reinterpret_cast<u8_t *>(this->m_data + p_index), sizeof(T) * (this->m_size - p_index - 1));
+    this->m_size--;
+  }
 }
 
 template <typename T>
