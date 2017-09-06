@@ -38,7 +38,7 @@ process::process(kernel &p_kernel, terminal *p_terminal, addr_t const p_program)
     if(block) this->m_used_blocks.add(block);
   }
 
-  this->create_thread(reinterpret_cast<addr_t>(USER_ENTRY_ADDRESS)); // Adding the main thread
+  this->create_thread(reinterpret_cast<addr_t>(USER_ENTRY_ADDRESS), true); // Adding the main thread
 }
 
 process::~process() {
@@ -47,9 +47,10 @@ process::~process() {
     this->m_kernel.m_memory.free_block(this->m_used_blocks[i]);
 }
 
-thread::thread(process &p_parent, addr_t const p_eip) :
+thread::thread(process &p_parent, addr_t const p_eip, bool const p_is_main) :
     m_parent(p_parent),
-    m_used_blocks() {
+    m_used_blocks(),
+    m_is_main(p_is_main) {
   this->state = thread_state_t::thread_state_running;
 
   addr_t stack = this->m_parent.m_kernel.m_memory.allocate_blocks(USER_STACK_SIZE_IN_PAGES);
@@ -100,7 +101,12 @@ addr_t process::expand_heap(u32_t const p_pages) {
   return ret;
 }
 
-void process::create_thread(addr_t const eip) {
-  thread *new_thread = new thread(*this, eip);
+void process::create_thread(addr_t const p_eip, bool const p_is_main) {
+  thread *new_thread = new thread(*this, p_eip, p_is_main);
   this->threads.add(new_thread);
+}
+
+void process::terminate_thread(size_t const p_index) {
+  delete this->threads[p_index];
+  this->threads.remove(p_index);
 }

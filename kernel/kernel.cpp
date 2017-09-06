@@ -137,9 +137,14 @@ void kernel::sys(registers_t const p_registers) {
 
 int kernel::sys_exit(u32_t const p_exit_code) {
   terminal *term = _kernel->m_processes[_kernel->m_process_index]->m_terminal;
-  term->write("\nProcess terminated with exit code: ");
-  term->write(p_exit_code);
-  _kernel->terminate_process(_kernel->m_process_index);
+  process *proc = this->m_processes[_kernel->m_process_index];
+  thread *thr = proc->threads[_kernel->m_thread_index];
+  if(thr->m_is_main) {
+    term->write("\nProcess terminated with exit code: ");
+    term->write(p_exit_code);
+    _kernel->terminate_process(_kernel->m_process_index);
+  } else
+    proc->terminate_thread(_kernel->m_thread_index);
   _kernel->task_switch();
   return 0;
 }
@@ -173,7 +178,7 @@ int kernel::sys_alloc(size_t const p_count, addr_t * const p_address) {
 
 int kernel::sys_thread(addr_t const p_entry) {
   process *proc = this->m_processes[_kernel->m_process_index];
-  proc->create_thread(p_entry);
+  proc->create_thread(p_entry, false);
   load_page_directory(reinterpret_cast<u32_t *>(proc->m_page_directory));
   return 0;
 }

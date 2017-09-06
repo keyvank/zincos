@@ -19,8 +19,9 @@ private:
   array_list<addr_t> m_used_blocks;
   cpu_state_t m_cpu_state;
   thread_state_t state;
+  bool m_is_main;
 public:
-  thread(process &p_parent, addr_t const p_eip);
+  thread(process &p_parent, addr_t const p_eip, bool const p_is_main);
   thread(thread const &) = default;
   thread(thread &&) = delete;
   thread &operator=(thread const &) = default;
@@ -45,7 +46,7 @@ private:
   size_t m_sys_read_count;
   void flush_input_buffer();
 
-  void create_thread(addr_t const p_eip);
+  void create_thread(addr_t const p_eip, bool const p_is_main);
 
 public:
 
@@ -53,6 +54,7 @@ public:
   process_state_t state;
   array_list<thread *> threads;
   addr_t expand_heap(u32_t const p_pages);
+  void terminate_thread(size_t const p_index);
 
   process(kernel &p_kernel, terminal *p_terminal, addr_t const p_program);
   process(process const &) = delete;
