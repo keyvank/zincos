@@ -20,7 +20,7 @@ private:
   cpu_state_t m_cpu_state;
   thread_state_t state;
 public:
-  thread(process &p_parent);
+  thread(process &p_parent, addr_t const p_eip);
   thread(thread const &) = default;
   thread(thread &&) = delete;
   thread &operator=(thread const &) = default;
@@ -36,6 +36,7 @@ private:
   kernel &m_kernel;
   page_directory_t *m_page_directory;
   array_list<addr_t> m_used_blocks;
+  array_list<addr_t> m_stack_blocks;
   u32_t m_heap_address;
   terminal *m_terminal;
 
@@ -43,6 +44,8 @@ private:
   char_t *m_sys_read_buffer;
   size_t m_sys_read_count;
   void flush_input_buffer();
+
+  void create_thread(addr_t const p_eip);
 
 public:
 

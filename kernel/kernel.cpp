@@ -26,6 +26,7 @@ extern "C" int _sys_exit(u32_t const p_exit_code) { return _kernel->sys_exit(p_e
 extern "C" int _sys_write(char_t const * const p_string){ return _kernel->sys_write(p_string); }
 extern "C" int _sys_read(char_t * const p_buffer, size_t const p_count){ return _kernel->sys_read(p_buffer, p_count); }
 extern "C" int _sys_alloc(size_t const p_count, addr_t * const p_buffer){ return _kernel->sys_alloc(p_count, p_buffer); }
+extern "C" int _sys_thread(addr_t const p_entry){ return _kernel->sys_thread(p_entry); }
 addr_t operator new(long unsigned int const p_size) { return _kernel->m_heap.allocate(p_size); }
 addr_t operator new[](long unsigned int const p_size) { return _kernel->m_heap.allocate(p_size); }
 void operator delete(addr_t const p_address) { _kernel->m_heap.free(p_address); }
@@ -37,24 +38,27 @@ void debug(u32_t const p_integer) {_kernel->m_terminal.write(p_integer);}
 void kernel::task_switch() {
   if(_kernel->m_processes.get_size() > 0 ) {
 
-
-    do {
-      _kernel->m_process_index++;
-      if(_kernel->m_process_index >= _kernel->m_processes.get_size())
-        _kernel->m_process_index = 0;
-    } while(_kernel->m_processes[_kernel->m_process_index]->state == process_state_t::process_state_blocked);
+    _kernel->m_thread_index++;
+    if(_kernel->m_thread_index >= _kernel->m_processes[_kernel->m_process_index]->threads.get_size()) {
+      _kernel->m_thread_index = 0;
+      do {
+        _kernel->m_process_index++;
+        if(_kernel->m_process_index >= _kernel->m_processes.get_size())
+          _kernel->m_process_index = 0;
+      } while(_kernel->m_processes[_kernel->m_process_index]->state == process_state_t::process_state_blocked);
+    }
 
     load_page_directory(reinterpret_cast<u32_t *>(_kernel->m_processes[_kernel->m_process_index]->m_page_directory));
 
     this->m_userland = true;
-    enter_usermode(_kernel->m_processes[_kernel->m_process_index]->threads[0]->m_cpu_state);
+    enter_usermode(_kernel->m_processes[_kernel->m_process_index]->threads[_kernel->m_thread_index]->m_cpu_state);
   } else this->panic("No process to run!");
 }
 
 void kernel::timer_handler(registers_t const p_registers) {
   load_page_directory((u32_t*)this->m_identity_page_directory);
   if(this->m_userland) {
-    thread *thr = this->m_processes[_kernel->m_process_index]->threads[0];
+    thread *thr = this->m_processes[_kernel->m_process_index]->threads[_kernel->m_thread_index];
     thr->m_cpu_state.esp = p_registers.useresp;
     thr->m_cpu_state.ebp = p_registers.ebp;
     thr->m_cpu_state.eip = p_registers.eip;
@@ -118,7 +122,7 @@ void kernel::keyboard_handler(registers_t const p_registers) {
 
 void kernel::sys(registers_t const p_registers) {
   load_page_directory(reinterpret_cast<u32_t *>(_kernel->m_identity_page_directory));
-  thread *thr = this->m_processes[_kernel->m_process_index]->threads[0];
+  thread *thr = this->m_processes[_kernel->m_process_index]->threads[_kernel->m_thread_index];
   thr->m_cpu_state.esp = p_registers.useresp;
   thr->m_cpu_state.ebp = p_registers.ebp;
   thr->m_cpu_state.eip = p_registers.eip;
@@ -163,6 +167,13 @@ int kernel::sys_alloc(size_t const p_count, addr_t * const p_address) {
   process *proc = this->m_processes[_kernel->m_process_index];
   addr_t *physical = reinterpret_cast<addr_t *>(get_physical(proc->m_page_directory, reinterpret_cast<u32_t>(p_address)));
   *physical = proc->expand_heap(p_count);
+  load_page_directory(reinterpret_cast<u32_t *>(proc->m_page_directory));
+  return 0;
+}
+
+int kernel::sys_thread(addr_t const p_entry) {
+  process *proc = this->m_processes[_kernel->m_process_index];
+  proc->create_thread(p_entry);
   load_page_directory(reinterpret_cast<u32_t *>(proc->m_page_directory));
   return 0;
 }
@@ -232,10 +243,13 @@ kernel::kernel(multiboot_info_t const &p_multiboot_info) :
   set_syscall(1, reinterpret_cast<addr_t>(_sys_write));
   set_syscall(2, reinterpret_cast<addr_t>(_sys_read));
   set_syscall(3, reinterpret_cast<addr_t>(_sys_alloc));
+  set_syscall(4, reinterpret_cast<addr_t>(_sys_thread));
 	asm volatile("sti");
 
   this->m_terminal.write("Loading a process...\n\n");
 
+  this->m_process_index = 0;
+  this->m_thread_index = 0;
   create_process(reinterpret_cast<addr_t>(1));
   create_process(reinterpret_cast<addr_t>(9));
   create_process(reinterpret_cast<addr_t>(17));

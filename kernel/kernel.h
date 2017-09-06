@@ -46,6 +46,7 @@ private:
   page_table_t *m_user_page_tables;
 
   size_t m_process_index;
+  size_t m_thread_index;
   linked_list<process *> m_processes;
   linked_list<terminal *> m_terminals;
 
@@ -71,4 +72,5 @@ public:
   int sys_write(char_t const * const);
   int sys_read(char_t * const, size_t const);
   int sys_alloc(size_t const, addr_t * const);
+  int sys_thread(addr_t const);
 };

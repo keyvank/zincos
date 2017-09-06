@@ -31,3 +31,8 @@ void *alloc_pages(unsigned long int const p_count) {
   asm volatile("int $123" : "=a" (syscall_result) : "0" (3), "b" ((int)p_count), "c" ((int)&address));
   return reinterpret_cast<void *>(address);
 }
+
+void thread(void (*p_entry)()) {
+  int syscall_result;
+  asm volatile("int $123" : "=a" (syscall_result) : "0" (4), "b" (p_entry));
+}
